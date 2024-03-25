@@ -281,21 +281,6 @@ uint64_t swap_uint64_t(uint64_t x) {
     return x;
 }
 
-static uint8_t be_shift(uint8_t bitpos, uint8_t length)
-{
-    // this is pretty much wrong
-
-    if (length == 8)
-    {
-        return 64 - bitpos - length;
-    }
-
-    uint8_t byte = 7 - bitpos / 8;
-    uint8_t sub = bitpos % 8;
-
-    return 8 * byte + sub;
-}
-
 // https://github.com/collin80/SavvyCAN/blob/77f889e4d765d82242f200f4c1187f99a67eff9e/dbc/dbc_classes.cpp#L97
 
 /*static*/ uint32_t Dbc::GetSignalBits(uint64_t data, Endian endianness, uint8_t bitpos, uint8_t length)
@@ -308,37 +293,12 @@ static uint8_t be_shift(uint8_t bitpos, uint8_t length)
         return (data >> bitpos) & mask;
     }
 
-    // Try and avoid any insane big endian logic if we can...
-    if (bitpos % 8 == 0 && length <= 8)
-    {
-        return (data >> bitpos) & mask;
-    }
-
-    // uint16_t big endian
-    if (bitpos % 8 == 0 && length == 16)
-    {
-        uint8_t low = 0xFF & (data >> bitpos);
-        uint8_t high = 0xFF & (data >> (bitpos - 8));
-
-        return high << 8 | low;
-    }
-
-    // uint32_t big endian
-    if (bitpos % 8 == 0 && length == 32)
-    {
-        uint8_t b0 = 0xFF & (data >> bitpos);
-        uint8_t b1 = 0xFF & (data >> (bitpos - 8));
-        uint8_t b2 = 0xFF & (data >> (bitpos - 16));
-        uint8_t b3 = 0xFF & (data >> (bitpos - 24));
-
-        return b0 | (b1 << 8) | (b2 << 16) | (b3 << 24);
-    }
-
-    // return GetVal(reinterpret_cast<uint8_t*>(&data), bitpos, length);
-
     data = swap_uint64_t(data);
 
-    data = data >> be_shift(bitpos, length);
+    uint8_t byte = 7 - bitpos / 8;
+    uint8_t bit = bitpos % 8;
+
+    data = data >> (8 * byte + bit);
     data &= mask;
 
     return data;
