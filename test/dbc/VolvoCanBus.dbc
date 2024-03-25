@@ -1,0 +1,259 @@
+VERSION ""
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: ECM Racecapture BCM EHPAS ABS SteeringWheel PMU
+
+
+BO_ 977 PpeiEngineGeneralStatus2: 8 ECM
+ SG_ ThrottlePositionValid : 7|1@1+ (1,0) [0|0] "flag" Vector__XXX
+ SG_ ThrottleProgressionStatus : 6|2@0+ (1,0) [0|0] ""  BCM
+ SG_ EmissionsMalfunctionActive : 4|1@1+ (1,0) [0|0] "flag" Vector__XXX
+ SG_ NonEmissionsMalfunctionActive : 3|1@1+ (1,0) [0|0] "flag" Vector__XXX
+ SG_ MalfunctionIndicationRequest : 2|3@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ ThrottlePosition : 15|8@0+ (0.39215686274,0) [0|100] "%" Vector__XXX
+ SG_ OilStarvationIndication : 21|1@1+ (1,0) [0|0] "flag"  Racecapture
+ SG_ CoastFuelCutActive : 22|1@1+ (1,0) [0|0] "flag" Vector__XXX
+ SG_ FuelConsumptionRate : 35|12@0+ (0.025,0) [0|102.375] "L/h"  Racecapture
+
+BO_ 201 PpeiEngineGeneralStatus1: 8 ECM
+ SG_ EngineRunActive : 7|1@0+ (1,0) [0|0] "flag"  Racecapture,BCM
+ SG_ EngineSpeed : 15|16@0+ (0.25,0) [0|16383.8] "rpm"  Racecapture,BCM
+ SG_ AccelPedalValid : 31|1@0+ (1,0) [0|0] "flag" Vector__XXX
+ SG_ AccelPedalPosition : 39|8@0+ (0.39215686274,0) [0|100] "%"  BCM,Racecapture
+ SG_ EngineIdleActive : 2|1@0+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 451 PpeiEngineTorqueStatus2: 8 ECM
+ SG_ EngineTorqueActualValidity : 4|1@0+ (1,0) [0|0] "flag" Vector__XXX
+ SG_ EngineTorqueActual : 3|12@0+ (0.5,-848) [-848|1199.5] "Nm"  Racecapture
+
+BO_ 1233 PpeiEngineGeneralStatus5: 8 ECM
+ SG_ EngineOilTempValid : 7|1@1+ (1,0) [0|0] "flag" Vector__XXX
+ SG_ EngineOilPressureValid : 6|1@1+ (1,0) [0|0] "flag" Vector__XXX
+ SG_ EngineOilLowPressureIndication : 5|1@1+ (1,0) [0|0] "flag"  Racecapture
+ SG_ EngineOilLevelLowIndication : 4|1@1+ (1,0) [0|0] "flag"  Racecapture
+ SG_ EngineHotStopEngineIndication : 2|1@1+ (1,0) [0|0] "flag" Vector__XXX
+ SG_ EngineOilTemperature : 15|8@0+ (1,-40) [-40|215] "deg C"  Racecapture
+ SG_ EngineOilPressure : 23|8@0+ (4,0) [0|1020] "kPa"  Racecapture
+ SG_ ReducedPowerIndication : 31|1@1+ (1,0) [0|0] "flag" Vector__XXX
+
+BO_ 1017 PpeiEngineGeneralStatus3: 8 ECM
+ SG_ GeneratorFailed : 5|1@1+ (1,0) [0|0] "flag"  Racecapture
+ SG_ EngineSpeedLimitationActive : 4|1@1+ (1,0) [0|0] "flag"  Racecapture
+ SG_ FuelInjectedRollingCount : 15|16@0+ (3.0517578125e-05,0) [0|2] "liter"  BCM
+ SG_ GeneratorFieldDutyCycle : 31|8@0+ (0.39215686274,0) [0|100] "%" Vector__XXX
+ SG_ EngineCoolingFanSpeed : 47|8@0+ (0.39215686274,0) [0|100] "%" Vector__XXX
+ SG_ EngineOilLifeRemaining : 55|8@0+ (0.39215686274,0) [0|100] "%" Vector__XXX
+ SG_ PowertrainTopSpeedLimitReduced : 2|1@0+ (1,0) [0|0] "flag" Vector__XXX
+ SG_ GeneratorDutyValid : 6|1@0+ (1,0) [0|0] "flag" Vector__XXX
+
+BO_ 1019 PpeiEngineFuelStatus: 8 ECM
+ SG_ EngineFuelControlState : 1|2@0+ (1,0) [0|0] ""  Racecapture
+ SG_ FuelAlcoholComposition : 15|8@0+ (0.39215686274,0) [0|100] "%"  Racecapture
+
+BO_ 1217 PpeiEngineGeneralStatus4: 8 ECM
+ SG_ CoolantTempValid : 6|1@1+ (1,0) [0|0] "flag" Vector__XXX
+ SG_ IntakeTempValid : 5|1@1+ (1,0) [0|0] "flag" Vector__XXX
+ SG_ CoolantTemp : 23|8@0+ (1,-40) [-40|215] "deg C"  Racecapture
+ SG_ IntakeTemp : 31|8@0+ (1,-40) [-40|215] "deg C"  Racecapture
+ SG_ EngineOilHotIndication : 45|1@1+ (1,0) [0|0] "flag"  Racecapture
+ SG_ BaroPressureValid : 7|1@1+ (1,0) [0|0] "flag" Vector__XXX
+ SG_ BaroPressure : 15|8@0+ (0.5,0) [0|127.5] "kPa" Vector__XXX
+
+BO_ 1225 PpeiTransmissionGeneralStatus3: 8 ECM
+ SG_ TransmissionOilTempValid : 7|1@1+ (1,0) [0|0] "flag" Vector__XXX
+ SG_ TransmissionThermalStatus : 1|2@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ TransmissionOilTemperature : 15|8@0+ (1,-40) [-40|215] "deg C"  Racecapture
+
+BO_ 495 PpeiFuelSystemRequest2: 8 ECM
+ SG_ MassAirFlow : 7|16@0+ (0.01,0) [0|655.35] "g/s"  Racecapture
+
+BO_ 501 PpeiTransmissionGeneralStatus2: 8 ECM
+ SG_ TransmissionEstimatedGear : 0|4@1+ (1,0) [0|0] ""  Racecapture
+ SG_ TransmissionEstimatedGearValid : 4|1@1+ (1,0) [0|0] "flag" Vector__XXX
+ SG_ ClutchPedalPositionValid : 55|1@1+ (1,0) [0|0] "flag" Vector__XXX
+ SG_ ClutchPedalPosition : 63|8@0+ (0.39215686274,0) [0|100] "%"  Racecapture
+
+BO_ 707 PpeiEngineTorqueStatus3: 8 ECM
+ SG_ ManifoldAbsPressureValid : 7|1@1+ (1,0) [0|0] "flag" Vector__XXX
+ SG_ ManifoldAbsPressure : 55|8@0+ (0.5,0) [0|127.5] "kPa"  Racecapture
+ SG_ TorqueMaximumValid : 4|1@1+ (1,0) [0|0] "flag" Vector__XXX
+ SG_ TorqueMaximum : 3|12@0+ (0.5,-848) [-848|1199.5] "Nm" Vector__XXX
+ SG_ TorqueMinimumValid : 20|1@0+ (1,0) [0|0] "flag" Vector__XXX
+ SG_ TorqueMinimum : 19|12@0+ (0.5,-848) [-848|1199.5] "Nm" Vector__XXX
+
+BO_ 1001 PpeiVehicleSpeedAndDistance: 8 ECM
+ SG_ VehicleSpeedDrivenValid : 7|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ VehicleSpeedDriven : 6|15@0+ (0.015625,0) [0|511.46] "km/h"  Racecapture
+
+BO_ 497 PpeiPlatformGeneralStatus: 8 BCM
+ SG_ SystemPowerMode : 1|2@0+ (1,0) [0|0] ""  ECM
+ SG_ ThrottleProgressionRequest : 39|2@0+ (1,0) [0|0] ""  ECM
+ SG_ OilLifeResetRequest : 37|1@0+ (1,0) [0|0] ""  ECM
+ SG_ PowerModeMasterRunCrankTerminal : 3|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ PowerModeMasterAccessoryTerminal : 2|1@0+ (1,0) [0|0] "" Vector__XXX
+ SG_ FuelFilterLifeResetRequest : 56|1@0+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 493 PpeiFuelSystemRequest: 8 ECM
+ SG_ FuelPumpEnabled : 6|1@1+ (1,0) [0|0] "flag"  BCM
+ SG_ FuelControlFaultPresent : 7|1@1+ (1,0) [0|0] "flag" Vector__XXX
+ SG_ CommandedAirFuelRatio : 47|16@0+ (0.00048828125,0) [0|32] "ratio"  ECM
+ SG_ InstantaneousFuelFlow : 15|16@0+ (0.0009765625,0) [0|64] "g/s"  ECM
+
+BO_ 2598373676 VolvoPowerSteeringIgnitionOn: 8 BCM
+ SG_ EhpasIgnitionRollCount : 8|8@1+ (1,0) [0|0] ""  EHPAS
+
+BO_ 2602565634 VolvoPowerSteeringAlive: 8 EHPAS
+ SG_ VolvoEhpasAlive : 0|64@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 2182103350 VolvoPowerSteeringSpeed: 8 BCM
+ SG_ EhpasVehicleSpeed : 55|16@0+ (0.01,0) [0|0] "km/h"  EHPAS
+
+BO_ 496 Mk60_WheelSpeeds: 8 ABS
+ SG_ Mk60FrontLeft : 0|12@1+ (0.03125,-0.5) [0|0] "km/h" Vector__XXX
+ SG_ Mk60FrontRight : 16|12@1+ (0.03125,-0.5) [0|0] "km/h" Vector__XXX
+ SG_ Mk60RearLeft : 32|12@1+ (0.03125,-0.5) [0|0] "km/h" Vector__XXX
+ SG_ Mk60RearRight : 48|12@1+ (0.03125,-0.5) [0|0] "km/h" Vector__XXX
+
+BO_ 339 Mk60Asc1: 8 ABS
+ SG_ Mk60BrakeSwitch : 4|1@1+ (1,0) [0|0] "flag"  BCM
+ SG_ Mk60AscTorqueReduction : 24|8@1+ (0.390625,0) [0|100] "%"  BCM
+ SG_ Mk60AscTorqueIncrease : 32|8@1+ (0.390625,0) [0|100] "%"  BCM
+
+BO_ 809 Mk60_DME2: 8 BCM
+ SG_ Mk60Wakeup1 : 0|64@1+ (1,0) [0|0] ""  ABS
+
+BO_ 1552 Mk60_ICL1: 8 BCM
+ SG_ Mk60Wakeup2 : 0|64@1+ (1,0) [0|0] ""  ABS
+
+BO_ 1792 SteerWheelControls: 4 SteeringWheel
+ SG_ SwcButtonLeft1 : 0|1@1+ (1,0) [0|0] ""  BCM
+ SG_ SwcButtonLeft2 : 1|1@1+ (1,0) [0|0] ""  BCM
+ SG_ SwcButtonLeft3 : 2|1@1+ (1,0) [0|0] ""  BCM
+ SG_ SwcButtonLeft4 : 3|1@1+ (1,0) [0|0] ""  BCM
+ SG_ SwcButtonLeft5 : 4|1@1+ (1,0) [0|0] ""  BCM
+ SG_ SwcButtonRight1 : 8|1@1+ (1,0) [0|0] ""  BCM
+ SG_ SwcButtonRight2 : 9|1@1+ (1,0) [0|0] ""  BCM
+ SG_ SwcButtonRight3 : 10|1@1+ (1,0) [0|0] ""  BCM
+ SG_ SwcButtonRight4 : 11|1@1+ (1,0) [0|0] ""  BCM
+ SG_ SwcButtonRight5 : 12|1@1+ (1,0) [0|0] ""  BCM
+ SG_ SwcKnobLeft : 16|8@1+ (1,0) [0|0] ""  BCM
+ SG_ SwcKnobRight : 24|8@1+ (1,0) [0|0] ""  BCM
+
+BO_ 249 PpeiTransmissionGeneralStatus1: 8 ECM
+
+BO_ 417 PteiEngineGeneralStatus: 8 ECM
+
+BO_ 452 PpeiTorqueRequestStatus: 8 ECM
+
+BO_ 961 PpeiPowertrainImmobilizerData: 8 ECM
+
+BO_ 1265 PpeiPowertrainConfigurationData: 8 ECM
+
+BO_ 1267 PpeiPowertrainConfigurationData2: 8 ECM
+
+BO_ 1906 DiagnosticTroubleCodeInfo: 8 ECM
+ SG_ DtcTriggered : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ DtcSource : 8|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ DtcNumber : 16|16@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ DtcFailureType : 32|8@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1856 PMU_Status1: 5 PMU
+ SG_ PmuBatteryVoltage : 0|8@1+ (0.1,0) [0|25.5] "V" Vector__XXX
+ SG_ PmuTotalCurrent : 8|8@1+ (1,0) [0|255] "A" Vector__XXX
+ SG_ PmuTempLeft : 16|8@1+ (1,0) [0|150] "C" Vector__XXX
+ SG_ PmuTempRight : 24|8@1+ (1,0) [0|150] "C" Vector__XXX
+ SG_ PmuFuelLiftPumpCurrent : 32|8@1+ (0.1,0) [0|25.5] "A" Vector__XXX
+
+BO_ 1009 PpeiPlatformEngineCntrlRequests: 8 BCM
+ SG_ GeneratorRegulatorDutyRequest : 15|8@0+ (0.392156863,0) [0|0] "%" Vector__XXX
+ SG_ PlatformIdleBoostRequest : 25|2@0+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 100 RacecaptureGpsPos: 8 Racecapture
+ SG_ RC_Latitude : 0|32@1- (1e-07,0) [-90|90] "deg" Vector__XXX
+ SG_ RC_Longitude : 32|32@1- (1e-07,0) [-180|180] "deg" Vector__XXX
+
+BO_ 101 RacecaptureGpsData: 5 Racecapture
+ SG_ RC_Gx : 0|8@1- (0.02,0) [0|0] "" Vector__XXX
+ SG_ RC_Gy : 8|8@1- (0.02,0) [0|0] "" Vector__XXX
+ SG_ RC_Gz : 16|8@1- (0.02,0) [0|0] "" Vector__XXX
+ SG_ RC_Rz : 24|8@1- (0.02,0) [0|0] "" Vector__XXX
+ SG_ RC_Speed : 32|8@1+ (1,0) [0|0] "" Vector__XXX
+
+
+
+CM_ BU_ ECM "GM E82 ECM";
+CM_ BU_ EHPAS "Volvo EHPAS Pump";
+CM_ BU_ ABS "Teves MK60";
+CM_ BO_ 977 "10hz";
+CM_ SG_ 977 ThrottlePosition "True throttle plate position";
+CM_ BO_ 201 "80hz";
+CM_ BO_ 451 "40hz";
+CM_ BO_ 1233 "2hz";
+CM_ BO_ 1017 "4hz";
+CM_ BO_ 1019 "4hz";
+CM_ BO_ 1217 "2hz";
+CM_ BO_ 1225 "2hz";
+CM_ BO_ 495 "80hz";
+CM_ BO_ 501 "40hz";
+CM_ BO_ 707 "20hz";
+CM_ BO_ 1001 "10hz";
+CM_ BO_ 497 "10hz";
+CM_ BO_ 493 "80hz";
+CM_ BO_ 2598373676 "Send at ~2hz";
+CM_ BO_ 2182103350 "Send at ~70hz";
+CM_ SG_ 2182103350 EhpasVehicleSpeed "factor is a guess";
+CM_ BO_ 809 "1hz";
+CM_ BO_ 1552 "1hz";
+CM_ BO_ 1792 "10hz";
+CM_ BO_ 249 "80hz";
+CM_ BO_ 417 "40hz";
+CM_ BO_ 452 "40hz";
+CM_ BO_ 961 "10hz";
+CM_ BO_ 1265 "1hz";
+CM_ BO_ 1267 "1hz";
+CM_ BO_ 1906 "1hz";
+CM_ BO_ 1856 "10hz";
+CM_ BO_ 1009 "4hz";
+CM_ BO_ 100 "25hz";
+CM_ BO_ 101 "25hz";
+VAL_ 977 ThrottleProgressionStatus 0 "MapA" 1 "MapB" 2 "MapC" 3 "EcmSelected" ;
+VAL_ 977 MalfunctionIndicationRequest 0 "ContinuousIndication" 1 "NoIndication" 2 "Flashing1hz" 3 "Flashing2hz" 4 "Flashing0_5hz" ;
+VAL_ 1019 EngineFuelControlState 0 "OpenLoop" 1 "NonStoichClosedLoop" 2 "StoichClosedLoop" ;
+VAL_ 1225 TransmissionThermalStatus 0 "Normal" 1 "CountermeasuresActive" 2 "DriverInterventionRequest" ;
+VAL_ 501 TransmissionEstimatedGear 1 "Gear1" 2 "Gear2" 3 "Gear3" 4 "Gear4" 5 "Gear5" 6 "Gear6" 7 "Gear7" 8 "Gear8" 9 "CvtForward" 10 "Neutral" 11 "Reverse" 12 "Park" 0 "NotSupported" ;
+VAL_ 497 SystemPowerMode 0 "Off" 1 "Accessory" 2 "Run" 3 "CrankRequest" ;
+VAL_ 497 ThrottleProgressionRequest 0 "MapA" 1 "MapB" 2 "MapC" ;
+VAL_ 1009 PlatformIdleBoostRequest 1 "BoostLevel1" 2 "BoostLevel2" 3 "BoostLevel3" 0 "NoBoost" ;
+
