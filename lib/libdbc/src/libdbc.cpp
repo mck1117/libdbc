@@ -243,15 +243,8 @@ std::unique_ptr<Dbc> ParseDbcFile(std::istream& file)
 
 }
 
-struct CanFrame
+void Dbc::Decode(CanFrame& frame, DecoderFunc onDecoded) const
 {
-    uint32_t Id;
-};
-
-void Dbc::Decode(void* vframe, DecoderFunc onDecoded) const
-{
-    const auto& frame = *reinterpret_cast<CanFrame*>(vframe);
-
     auto search = m_messages.find(frame.Id);
 
     // Do we know how to decode this frame?
@@ -266,7 +259,13 @@ void Dbc::Decode(void* vframe, DecoderFunc onDecoded) const
     // Decode every signal in the message
     for (const auto& signal : message.Signals)
     {
-        auto bits = GetSignalBits(0, signal.Endianness, signal.Bitpos, signal.Length);
+        auto bits = GetSignalBits(frame.Data64, signal.Endianness, signal.Bitpos, signal.Length);
+
+        // if signed, sign extend as necessary
+        if (signal.Signed)
+        {
+            uint64_t signBit = bits & (1ULL << (signal.Length - 1));
+        }
 
         float val = signal.Factor * bits + signal.Offset;
 
@@ -287,21 +286,23 @@ uint64_t swap_uint64_t(uint64_t x) {
 {
     uint64_t mask = (1ULL << length) - 1;
 
+    uint8_t shift;
+
     if (endianness == Endian::Little_Intel)
     {
-        // Little endian is easy, just shift and mask
-        return (data >> bitpos) & mask;
+        // Little endian is easy, just shift by bitpos
+        shift = bitpos;
+    }
+    else
+    {
+        data = swap_uint64_t(data);
+
+        uint8_t byte = 7 - bitpos / 8;
+        uint8_t bit = bitpos % 8;
+        shift = 8 * byte + bit;
     }
 
-    data = swap_uint64_t(data);
-
-    uint8_t byte = 7 - bitpos / 8;
-    uint8_t bit = bitpos % 8;
-
-    data = data >> (8 * byte + bit);
-    data &= mask;
-
-    return data;
+    return (data >> shift) & mask;
 }
 
 namespace libdbc::impl

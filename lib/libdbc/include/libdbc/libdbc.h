@@ -62,12 +62,23 @@ struct Message
 
 using DecoderFunc = std::function<void(const Signal& signal, float value)>;
 
+struct CanFrame
+{
+    uint32_t Id;
+
+    union
+    {
+        uint8_t Data8[8];
+        uint64_t Data64;
+    };
+};
+
 class Dbc
 {
 public:
     Dbc(const std::map<uint32_t, Message> messages) : m_messages(messages) { }
 
-    void Decode(void* frame, DecoderFunc onDecoded) const;
+    void Decode(CanFrame& frame, DecoderFunc onDecoded) const;
 
     const std::map<uint32_t, Message>& Messages() const
     {

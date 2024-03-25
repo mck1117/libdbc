@@ -44,7 +44,7 @@ TEST(Parsing, ParseFloat)
     EXPECT_FLOAT_EQ(-0.0001f, libdbc::util::ParseFloat("-0.0001"));
 }
 
-std::unique_ptr<libdbc::Dbc> ParseDbcFile(const char* path)
+static std::unique_ptr<libdbc::Dbc> ParseDbcFile(const char* path)
 {
     std::ifstream f(path);
     return libdbc::ParseDbcFile(f);

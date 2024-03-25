@@ -304,5 +304,5 @@ TEST(Decode, Gm_Torque)
 
     // 46 AB 06 AB FF 00 00 00
 
-    EXPECT_EQ(0x6ab, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 8, 12));
+    EXPECT_EQ(0x6ab, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 3, 12));
 }
