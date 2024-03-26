@@ -269,7 +269,10 @@ void Dbc::Decode(CanFrame& frame, DecoderFunc onDecoded) const
 
         float val = signal.Factor * bits + signal.Offset;
 
-        onDecoded(signal, bits, val);
+        if (onDecoded)
+        {
+            onDecoded(signal, bits, val);
+        }
     }
 }
 
