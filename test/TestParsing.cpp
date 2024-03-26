@@ -38,6 +38,8 @@ TEST(Parsing, ParseFloat)
     EXPECT_FLOAT_EQ(0.1f, libdbc::util::ParseFloat("0.1"));
     EXPECT_FLOAT_EQ(123.45f, libdbc::util::ParseFloat("123.45"));
     EXPECT_FLOAT_EQ(0.0001f, libdbc::util::ParseFloat("0.0001"));
+    EXPECT_FLOAT_EQ(0.00048828125f, libdbc::util::ParseFloat("0.00048828125"));
+    EXPECT_FLOAT_EQ(0.11111111f, libdbc::util::ParseFloat("0.111111111111111111111111"));
 
     EXPECT_FLOAT_EQ(-0.1f, libdbc::util::ParseFloat("-0.1"));
     EXPECT_FLOAT_EQ(-123.45f, libdbc::util::ParseFloat("-123.45"));
