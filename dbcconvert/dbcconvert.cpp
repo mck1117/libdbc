@@ -27,7 +27,14 @@ int main(int argc, char** argv)
             return -2;
         }
 
-        dbc = libdbc::ParseDbcFile(dbcFile);
+        std::cout << "\"Time\"|\"s\"|0|0|3";
+
+        dbc = libdbc::ParseDbcFile(dbcFile, [](const libdbc::Signal& s)
+            {
+                std::cout << ",\"" << s.Name << "\"|\"" << s.Unit << "\"|" << s.Min << '|' << s.Max  << '|' << "3";
+            });
+
+        std::cout << std::endl;
 
         if (!dbc)
         {
@@ -37,15 +44,15 @@ int main(int argc, char** argv)
     }
 
     {
-        const auto& msgs = dbc->Messages();
+        // const auto& msgs = dbc->Messages();
 
-        std::cout
-            << "DBC loaded successfully! "
-            << msgs.size()
-            << " messages with a total of "
-            << dbc->SignalCount()
-            << " signals."
-            << std::endl;
+        // std::cout
+        //     << "DBC loaded successfully! "
+        //     << msgs.size()
+        //     << " messages with a total of "
+        //     << dbc->SignalCount()
+        //     << " signals."
+        //     << std::endl;
     }
 
     std::ifstream inputFile(argv[2]);
@@ -94,33 +101,41 @@ int main(int argc, char** argv)
                 frame.Data8[i] = std::stoul(matches[i + 4].str(), nullptr, 16);
             }
 
+            bool dataChange = false;
+
             dbc->Decode(frame, [&](const libdbc::Signal& s, uint64_t, float value)
             {
-                // std::cout << s.Name << ": " << value << std::endl;
-                data[s.Id] = value;
+                // Only update if data changed
+                if (data[s.Id] != value)
+                {
+                    data[s.Id] = value;
+                    dataChange = true;
+                }
             });
 
-            std::cout << timestamp << ',' << data[0];
-
-            for (size_t i = 1; i < data.size(); i++)
+            if (dataChange)
             {
-                if (data[i] != lastData[i])
+                std::cout << (timestamp * 1e-6);
+
+                for (size_t i = 0; i < data.size(); i++)
                 {
-                    std::cout << ',' << data[i];
+                    if (data[i] != lastData[i])
+                    {
+                        std::cout << ',' << data[i];
+                        lastData[i] = data[i];
+                    }
+                    else
+                    {
+                        std::cout << ',';
+                    }
                 }
-                else
-                {
-                    std::cout << ',';
-                }
+
+                std::cout << std::endl;
             }
-
-            std::cout << std::endl;
-
-            std::swap(data, lastData);
         }
         else
         {
-            std::cout << "Skipping line " << line << std::endl;
+            // std::cout << "Skipping line " << line << std::endl;
         }
     }
 
