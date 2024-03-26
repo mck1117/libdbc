@@ -4,7 +4,7 @@
 #include <fstream>
 
 #include <numeric>
-#inculde <regex>
+#include <regex>
 
 int main(int argc, char** argv)
 {
@@ -64,7 +64,7 @@ int main(int argc, char** argv)
 
     libdbc::impl::FileReader inputReader(inputFile);
 
-    const std::regex lineRegex("");
+    const std::regex lineRegex("^([0-9]+),([0-9a-fA-F]+),[a-z]+,[A-Za-z]+,[0-9],([0-9]),([0-9A-Fa-f]{2}),([0-9A-Fa-f]{2}),([0-9A-Fa-f]{2}),([0-9A-Fa-f]{2}),([0-9A-Fa-f]{2}),([0-9A-Fa-f]{2}),([0-9A-Fa-f]{2}),([0-9A-Fa-f]{2}),$");
 
     while (true)
     {
@@ -77,9 +77,33 @@ int main(int argc, char** argv)
             break;
         }
 
-        libdbc::CanFrame frame;
+        std::string line2(line);
 
-        dbc->Decode(frame, nullptr);
+        std::smatch matches;
+        if (std::regex_match(line2, matches, lineRegex))
+        {
+            libdbc::CanFrame frame;
+
+            uint64_t timestamp = std::stoul(matches[1].str());
+            (void)timestamp;
+
+            frame.Id = std::stoul(matches[2].str(), nullptr, 16);
+            frame.Dlc = std::stoul(matches[3].str());
+
+            for (size_t i = 0; i < 8; i++)
+            {
+                frame.Data8[i] = std::stoul(matches[i + 4].str(), nullptr, 16);
+            }
+
+            dbc->Decode(frame, [](const libdbc::Signal& s, uint64_t, float value)
+            {
+                std::cout << s.Name << ": " << value << std::endl;
+            });
+        }
+        else
+        {
+            std::cout << "Skipping line " << line << std::endl;
+        }
     }
 
     return 0;

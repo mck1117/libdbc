@@ -65,6 +65,7 @@ using DecoderFunc = std::function<void(const Signal& signal, uint64_t bitsValue,
 struct CanFrame
 {
     uint32_t Id;
+    uint8_t Dlc;
 
     union
     {
