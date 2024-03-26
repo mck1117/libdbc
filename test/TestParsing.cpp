@@ -80,7 +80,7 @@ TEST(Parsing, OneMessage_OneSignal)
     EXPECT_EQ(8, signal.Offset);
     EXPECT_EQ(9, signal.Min);
     EXPECT_EQ(10, signal.Max);
-    // EXPECT_EQ("test unit", signal.Unit);
+    EXPECT_EQ("test unit", signal.Unit);
 }
 
 TEST(Parsing, RealVolvoDbc)

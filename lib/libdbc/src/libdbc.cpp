@@ -225,6 +225,10 @@ std::unique_ptr<Dbc> ParseDbcFile(std::istream& file, std::function<void(const S
             auto minmaxEnd = line.find(']', minmaxStart);
             auto minmax = util::ParseMinmax(line.substr(minmaxStart, minmaxEnd - minmaxStart));
 
+            auto unitStart = line.find('"', minmaxEnd) + 1;
+            auto unitEnd = line.find('"', unitStart);
+            auto unit = line.substr(unitStart, unitEnd - unitStart);
+
             currentMessage->Signals.emplace_back(
                 signalId++,
                 std::string{nameString},
@@ -235,7 +239,8 @@ std::unique_ptr<Dbc> ParseDbcFile(std::istream& file, std::function<void(const S
                 scaleOffset.first,
                 scaleOffset.second,
                 minmax.first,
-                minmax.second
+                minmax.second,
+                unit
             );
 
             if (onSignal)

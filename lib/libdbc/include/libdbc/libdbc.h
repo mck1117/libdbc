@@ -29,8 +29,9 @@ struct Signal
     const float Offset;
     float Min;
     float Max;
+    std::string Unit;
 
-    Signal(size_t id, std::string_view name, Endian endian, bool isSigned, uint8_t bitpos, uint8_t length, float factor, float offset, float min, float max)
+    Signal(size_t id, std::string_view name, Endian endian, bool isSigned, uint8_t bitpos, uint8_t length, float factor, float offset, float min, float max, std::string_view unit)
         : Id(id)
         , Name(name)
         , Endianness(endian)
@@ -41,6 +42,7 @@ struct Signal
         , Offset(offset)
         , Min(min)
         , Max(max)
+        , Unit(unit)
     {
     }
 };
