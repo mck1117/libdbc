@@ -39,17 +39,11 @@ int main(int argc, char** argv)
     {
         const auto& msgs = dbc->Messages();
 
-        size_t signalCount = 0;
-        for (const auto& [id, msg] : msgs)
-        {
-            signalCount += msg.Signals.size();
-        }
-
         std::cout
             << "DBC loaded successfully! "
             << msgs.size()
             << " messages with a total of "
-            << signalCount
+            << dbc->SignalCount()
             << " signals."
             << std::endl;
     }
@@ -65,6 +59,11 @@ int main(int argc, char** argv)
     libdbc::impl::FileReader inputReader(inputFile);
 
     const std::regex lineRegex("^([0-9]+),([0-9a-fA-F]+),[a-z]+,[A-Za-z]+,[0-9],([0-9]),([0-9A-Fa-f]{2}),([0-9A-Fa-f]{2}),([0-9A-Fa-f]{2}),([0-9A-Fa-f]{2}),([0-9A-Fa-f]{2}),([0-9A-Fa-f]{2}),([0-9A-Fa-f]{2}),([0-9A-Fa-f]{2}),$");
+
+    std::vector<float> data;
+    data.resize(dbc->SignalCount());
+    std::vector<float> lastData;
+    lastData.resize(dbc->SignalCount());
 
     while (true)
     {
@@ -95,10 +94,29 @@ int main(int argc, char** argv)
                 frame.Data8[i] = std::stoul(matches[i + 4].str(), nullptr, 16);
             }
 
-            dbc->Decode(frame, [](const libdbc::Signal& s, uint64_t, float value)
+            dbc->Decode(frame, [&](const libdbc::Signal& s, uint64_t, float value)
             {
-                std::cout << s.Name << ": " << value << std::endl;
+                // std::cout << s.Name << ": " << value << std::endl;
+                data[s.Id] = value;
             });
+
+            std::cout << timestamp << ',' << data[0];
+
+            for (size_t i = 1; i < data.size(); i++)
+            {
+                if (data[i] != lastData[i])
+                {
+                    std::cout << ',' << data[i];
+                }
+                else
+                {
+                    std::cout << ',';
+                }
+            }
+
+            std::cout << std::endl;
+
+            std::swap(data, lastData);
         }
         else
         {
