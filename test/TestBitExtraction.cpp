@@ -214,38 +214,29 @@ TEST(Decode, FewBits_CrossByte_BE)
     EXPECT_EQ(0, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 1, 1));
 }
 
-TEST(Decode, SingleBit_LE)
+TEST(Decode, SingleBits)
 {
     union
     {
-        uint8_t data8[8] = { 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 };
+        uint8_t data8[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
         uint64_t data64;
     };
 
-    // These two are from the 0x01 byte
-    EXPECT_EQ(1, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Little_Intel, 56, 1));
-    EXPECT_EQ(0, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Little_Intel, 57, 1));
-
-    // These two are from the 0x02 byte
-    EXPECT_EQ(0, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Little_Intel, 0, 1));
-    EXPECT_EQ(1, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Little_Intel, 1, 1));
-}
-
-TEST(Decode, SingleBit_BE)
-{
-    union
+    for (size_t byte = 0; byte < 8; byte++)
     {
-        uint8_t data8[8] = { 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 };
-        uint64_t data64;
-    };
+        for (size_t bit = 0; bit < 8; bit++)
+        {
+            data8[byte] = 1 << bit;
 
-    // These two are from the 0x01 byte
-    EXPECT_EQ(1, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 56, 1));
-    EXPECT_EQ(0, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 57, 1));
+            size_t bitIdx = 8 * byte + bit;
 
-    // These two are from the 0x02 byte
-    EXPECT_EQ(0, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 0, 1));
-    EXPECT_EQ(1, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 1, 1));
+            // Big and little endian should give identical results for single bits
+            EXPECT_EQ(1, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, bitIdx, 1)) << " byte " << byte << " bit " << bit << " index " << bitIdx;
+            EXPECT_EQ(1, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Little_Intel, bitIdx, 1)) << " byte " << byte << " bit " << bit << " index " << bitIdx;
+        }
+
+        data8[byte] = 0;
+    }
 }
 
 TEST(Decode, MultiByte_LE)
