@@ -262,14 +262,14 @@ void Dbc::Decode(CanFrame& frame, DecoderFunc onDecoded) const
         auto bits = GetSignalBits(frame.Data64, signal.Endianness, signal.Bitpos, signal.Length);
 
         // if signed, sign extend as necessary
-        if (signal.Signed)
-        {
-            uint64_t signBit = bits & (1ULL << (signal.Length - 1));
-        }
+        // if (signal.Signed)
+        // {
+        //     uint64_t signBit = bits & (1ULL << (signal.Length - 1));
+        // }
 
         float val = signal.Factor * bits + signal.Offset;
 
-        onDecoded(signal, val);
+        onDecoded(signal, bits, val);
     }
 }
 

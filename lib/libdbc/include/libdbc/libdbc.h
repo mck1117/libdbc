@@ -60,7 +60,7 @@ struct Message
     }
 };
 
-using DecoderFunc = std::function<void(const Signal& signal, float value)>;
+using DecoderFunc = std::function<void(const Signal& signal, uint64_t bitsValue, float scaledValue)>;
 
 struct CanFrame
 {
