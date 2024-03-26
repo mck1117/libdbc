@@ -148,7 +148,7 @@ std::unique_ptr<Dbc> ParseDbcFile(std::istream& file)
 
     Message* currentMessage = nullptr;
 
-    uint32_t signalId = 100;
+    uint32_t signalId = 0;
 
     while (true)
     {
@@ -244,7 +244,7 @@ std::unique_ptr<Dbc> ParseDbcFile(std::istream& file)
         }
     }
 
-    return std::make_unique<Dbc>(std::move(messages));
+    return std::make_unique<Dbc>(signalId + 1, std::move(messages));
 }
 
 }

@@ -77,9 +77,18 @@ struct CanFrame
 class Dbc
 {
 public:
-    Dbc(const std::map<uint32_t, Message> messages) : m_messages(messages) { }
+    Dbc(size_t signalCount, const std::map<uint32_t, Message> messages)
+        : m_signalCount(signalCount)
+        , m_messages(messages)
+    {
+    }
 
     void Decode(CanFrame& frame, DecoderFunc onDecoded) const;
+
+    size_t SignalCount() const
+    {
+        return m_signalCount;
+    }
 
     const std::map<uint32_t, Message>& Messages() const
     {
@@ -89,7 +98,7 @@ public:
     static uint32_t GetSignalBits(uint64_t data, Endian endianness, uint8_t bitpos, uint8_t length);
 
 private:
-
+    const size_t m_signalCount;
     std::map<uint32_t, Message> m_messages;
 };
 
