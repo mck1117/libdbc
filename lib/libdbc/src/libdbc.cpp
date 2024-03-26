@@ -254,7 +254,7 @@ std::unique_ptr<Dbc> ParseDbcFile(std::istream& file, std::function<void(const S
         }
     }
 
-    return std::make_unique<Dbc>(signalId + 1, std::move(messages));
+    return std::make_unique<Dbc>(signalId, std::move(messages));
 }
 
 }
