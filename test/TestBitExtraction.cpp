@@ -28,14 +28,14 @@ TEST(Decode, SingleByte_BE_Aligned)
         uint64_t data64;
     };
 
-    EXPECT_EQ(0x11, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 0, 8));
-    EXPECT_EQ(0x22, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 8, 8));
-    EXPECT_EQ(0x33, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 16, 8));
-    EXPECT_EQ(0x44, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 24, 8));
-    EXPECT_EQ(0x55, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 32, 8));
-    EXPECT_EQ(0x66, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 40, 8));
-    EXPECT_EQ(0x77, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 48, 8));
-    EXPECT_EQ(0x88, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 56, 8));
+    EXPECT_EQ(0x11, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 7, 8));
+    EXPECT_EQ(0x22, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 15, 8));
+    EXPECT_EQ(0x33, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 23, 8));
+    EXPECT_EQ(0x44, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 31, 8));
+    EXPECT_EQ(0x55, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 39, 8));
+    EXPECT_EQ(0x66, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 47, 8));
+    EXPECT_EQ(0x77, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 55, 8));
+    EXPECT_EQ(0x88, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 63, 8));
 }
 
 TEST(Decode, TwoBytes_LE_Aligned)
@@ -63,13 +63,13 @@ TEST(Decode, TwoBytes_BE_Aligned)
         uint64_t data64;
     };
 
-    EXPECT_EQ(0x1122, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 8, 16));
-    EXPECT_EQ(0x2233, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 16, 16));
-    EXPECT_EQ(0x3344, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 24, 16));
-    EXPECT_EQ(0x4455, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 32, 16));
-    EXPECT_EQ(0x5566, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 40, 16));
-    EXPECT_EQ(0x6677, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 48, 16));
-    EXPECT_EQ(0x7788, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 56, 16));
+    EXPECT_EQ(0x1122, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 7, 16));
+    EXPECT_EQ(0x2233, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 15, 16));
+    EXPECT_EQ(0x3344, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 23, 16));
+    EXPECT_EQ(0x4455, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 31, 16));
+    EXPECT_EQ(0x5566, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 39, 16));
+    EXPECT_EQ(0x6677, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 47, 16));
+    EXPECT_EQ(0x7788, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 55, 16));
 }
 
 TEST(Decode, FourBytes_LE_Aligned)
@@ -95,11 +95,11 @@ TEST(Decode, FourBytes_BE_Aligned)
         uint64_t data64;
     };
 
-    EXPECT_EQ(0x11223344, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 24, 32));
-    EXPECT_EQ(0x22334455, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 32, 32));
-    EXPECT_EQ(0x33445566, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 40, 32));
-    EXPECT_EQ(0x44556677, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 48, 32));
-    EXPECT_EQ(0x55667788, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 56, 32));
+    EXPECT_EQ(0x11223344, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 7, 32));
+    EXPECT_EQ(0x22334455, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 15, 32));
+    EXPECT_EQ(0x33445566, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 23, 32));
+    EXPECT_EQ(0x44556677, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 31, 32));
+    EXPECT_EQ(0x55667788, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 39, 32));
 }
 
 TEST(Decode, SingleByte_LE_Misaligned)
@@ -125,11 +125,11 @@ TEST(Decode, SingleByte_BE_Misaligned)
         uint64_t data64;
     };
 
-    EXPECT_EQ(0x12, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 12, 8));
-    EXPECT_EQ(0x23, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 20, 8));
-    EXPECT_EQ(0x34, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 28, 8));
-    EXPECT_EQ(0x45, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 36, 8));
-    EXPECT_EQ(0x56, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 44, 8));
+    EXPECT_EQ(0x12, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 3, 8));
+    EXPECT_EQ(0x23, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 11, 8));
+    EXPECT_EQ(0x34, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 19, 8));
+    EXPECT_EQ(0x45, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 27, 8));
+    EXPECT_EQ(0x56, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 35, 8));
 }
 
 TEST(Decode, FewBits_MidByte_LE)
@@ -158,12 +158,12 @@ TEST(Decode, FewBits_MidByte_BE)
     };
 
     // Bottom half of 2nd byte
-    EXPECT_EQ(0xC, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 8, 4));
+    EXPECT_EQ(0xC, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 11, 4));
     // Top half of 2nd byte
-    EXPECT_EQ(0x3, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 12, 4));
+    EXPECT_EQ(0x3, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 15, 4));
 
     // Middle of 2nd byte
-    EXPECT_EQ(0xF, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 10, 4));
+    EXPECT_EQ(0xF, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 13, 4));
 }
 
 TEST(Decode, FewBits_CrossByte_LE)
@@ -199,13 +199,13 @@ TEST(Decode, FewBits_CrossByte_BE)
     };
 
     // Grab the 8 bits with two set in the middle: 00011000
-    EXPECT_EQ(0x18, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 12, 8));
+    EXPECT_EQ(0x18, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 3, 8));
 
     // Grab the middle 4 bits: 0110
-    EXPECT_EQ(0x6, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 14, 4));
+    EXPECT_EQ(0x6, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 1, 4));
 
     // Grab the middle 2 bits: 11
-    EXPECT_EQ(0x3, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 15, 2));
+    EXPECT_EQ(0x3, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 0, 2));
 
     // Grab each single bit
     EXPECT_EQ(0, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 14, 1));
@@ -259,8 +259,11 @@ TEST(Decode, MultiByte_LE)
     // Aligned
     EXPECT_EQ(0x443322, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Little_Intel, 8, 24));
 
-    // Misaligned
+    // Misaligned by 4 bits
     EXPECT_EQ(0x433221, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Little_Intel, 4, 24));
+
+    // Misaligned by 3 bits
+    EXPECT_EQ(0x866442, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Little_Intel, 3, 24));
 }
 
 TEST(Decode, MultiByte_BE)
@@ -272,11 +275,13 @@ TEST(Decode, MultiByte_BE)
     };
 
     // Aligned
-    EXPECT_EQ(0x223344, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 24, 24));
+    EXPECT_EQ(0x223344, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 15, 24));
 
-    // Misaligned
-    EXPECT_EQ(0x122334, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 28, 24));
+    // Misaligned by 4 bits
+    EXPECT_EQ(0x122334, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 3, 24));
 
+    // Misaligned by 3 bits
+    EXPECT_EQ(0x122334, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 2, 24));
 }
 
 TEST(Decode, Gm_Rpm)
@@ -289,7 +294,7 @@ TEST(Decode, Gm_Rpm)
 
     // shift 40
 
-    EXPECT_EQ(0x154d, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 16, 16));
+    EXPECT_EQ(0x154d, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 15, 16));
 }
 
 TEST(Decode, Gm_Torque)

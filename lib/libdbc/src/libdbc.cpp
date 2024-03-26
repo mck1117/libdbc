@@ -297,9 +297,34 @@ uint64_t swap_uint64_t(uint64_t x) {
     {
         data = swap_uint64_t(data);
 
-        uint8_t byte = 7 - bitpos / 8;
-        uint8_t bit = bitpos % 8;
-        shift = 8 * byte + bit;
+        // I don't love this, but it works!?
+        switch (bitpos % 8)
+        {
+            case 0:
+                shift = 64 - bitpos - length - 7;
+                break;
+            case 1:
+                shift = 64 - bitpos - length - 5;
+                break;
+            case 2:
+                shift = 64 - bitpos - length - 3;
+                break;
+            case 3:
+                shift = 64 - bitpos - length - 1;
+                break;
+            case 4:
+                shift = 64 - bitpos - length + 1;
+                break;
+            case 5:
+                shift = 64 - bitpos - length + 3;
+                break;
+            case 6:
+                shift = 64 - bitpos - length + 5;
+                break;
+            case 7:
+                shift = 64 - bitpos - length + 7;
+                break;
+        }
     }
 
     return (data >> shift) & mask;
