@@ -102,7 +102,7 @@ private:
     std::map<uint32_t, Message> m_messages;
 };
 
-std::unique_ptr<Dbc> ParseDbcFile(std::istream& file);
+std::unique_ptr<Dbc> ParseDbcFile(std::istream& file, std::function<void(const Signal&)> = nullptr);
 
 namespace impl
 {

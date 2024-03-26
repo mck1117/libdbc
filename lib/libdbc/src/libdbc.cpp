@@ -140,7 +140,7 @@ static std::pair<float, float> ParseMinmax(std::string_view str)
 
 }
 
-std::unique_ptr<Dbc> ParseDbcFile(std::istream& file)
+std::unique_ptr<Dbc> ParseDbcFile(std::istream& file, std::function<void(const Signal& s)> onSignal)
 {
     std::map<uint32_t, Message> messages;
 
@@ -237,6 +237,11 @@ std::unique_ptr<Dbc> ParseDbcFile(std::istream& file)
                 minmax.first,
                 minmax.second
             );
+
+            if (onSignal)
+            {
+                onSignal(*(currentMessage->Signals.end() - 1));
+            }
         }
         else
         {
