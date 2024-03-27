@@ -68,7 +68,7 @@ float ParseFloat(std::string_view str)
         fraction = fraction * 10;
         fraction += (c - '0');
 
-        scale *= 0.1;
+        scale *= 0.1f;
 
         // too many significant digits to represent
         if (fraction > 429496729)
