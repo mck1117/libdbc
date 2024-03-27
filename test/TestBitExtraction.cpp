@@ -222,13 +222,13 @@ TEST(Decode, SingleBits)
         uint64_t data64;
     };
 
-    for (size_t byte = 0; byte < 8; byte++)
+    for (uint8_t byte = 0; byte < 8; byte++)
     {
-        for (size_t bit = 0; bit < 8; bit++)
+        for (uint8_t bit = 0; bit < 8; bit++)
         {
             data8[byte] = 1 << bit;
 
-            size_t bitIdx = 8 * byte + bit;
+            uint8_t bitIdx = 8 * byte + bit;
 
             // Big and little endian should give identical results for single bits
             EXPECT_EQ(1, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, bitIdx, 1)) << " byte " << byte << " bit " << bit << " index " << bitIdx;
