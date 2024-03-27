@@ -14,6 +14,8 @@ int main(int argc, char** argv)
         return -1;
     }
 
+    std::ofstream outFile(argv[3]);
+
     // Load DBC file
 
     std::unique_ptr<libdbc::Dbc> dbc;
@@ -27,14 +29,14 @@ int main(int argc, char** argv)
             return -2;
         }
 
-        std::cout << "\"Interval\"|\"ms\"|0|0|1,\"Utc\"|\"ms\"|0|0|1";
+        outFile << "\"Interval\"|\"ms\"|0|0|1,\"Utc\"|\"ms\"|0|0|1";
 
-        dbc = libdbc::ParseDbcFile(dbcFile, [](const libdbc::Signal& s)
+        dbc = libdbc::ParseDbcFile(dbcFile, [&](const libdbc::Signal& s)
             {
-                std::cout << ",\"" << s.Name << "\"|\"" << s.Unit << "\"|" << s.Min << '|' << s.Max  << '|' << "3";
+                outFile << ",\"" << s.Name << "\"|\"" << s.Unit << "\"|" << s.Min << '|' << s.Max  << '|' << "3";
             });
 
-        std::cout << std::endl;
+        outFile << std::endl;
 
         if (!dbc)
         {
@@ -44,15 +46,15 @@ int main(int argc, char** argv)
     }
 
     {
-        // const auto& msgs = dbc->Messages();
+        const auto& msgs = dbc->Messages();
 
-        // std::cout
-        //     << "DBC loaded successfully! "
-        //     << msgs.size()
-        //     << " messages with a total of "
-        //     << dbc->SignalCount()
-        //     << " signals."
-        //     << std::endl;
+        std::cout
+            << "DBC loaded successfully! "
+            << msgs.size()
+            << " messages with a total of "
+            << dbc->SignalCount()
+            << " signals."
+            << std::endl;
     }
 
     std::ifstream inputFile(argv[2]);
@@ -115,27 +117,27 @@ int main(int argc, char** argv)
 
             if (dataChange)
             {
-                std::cout << (timestamp * 1e-3) << ",0";
+                outFile << (timestamp * 1e-3) << ",0";
 
                 for (size_t i = 0; i < data.size(); i++)
                 {
                     if (data[i] != lastData[i])
                     {
-                        std::cout << ',' << data[i];
+                        outFile << ',' << data[i];
                         lastData[i] = data[i];
                     }
                     else
                     {
-                        std::cout << ',';
+                        outFile << ',';
                     }
                 }
 
-                std::cout << std::endl;
+                outFile << std::endl;
             }
         }
         else
         {
-            // std::cout << "Skipping line " << line << std::endl;
+            std::cout << "Skipping line " << line << std::endl;
         }
     }
 
