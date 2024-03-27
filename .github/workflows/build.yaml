@@ -1,9 +1,9 @@
-name: Simulator
+name: Unit Tests CI
 
 on: [push, pull_request]
 
 jobs:
-  build-simulator:
+  build:
     runs-on: ubuntu-latest
 
     steps:
