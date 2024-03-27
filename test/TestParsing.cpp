@@ -54,7 +54,7 @@ static std::unique_ptr<libdbc::Dbc> ParseDbcFile(const char* path)
 
 TEST(Parsing, OneMessage_OneSignal)
 {
-    auto dbc = ParseDbcFile("dbc/Test_OneMessage_OneSignal.dbc");
+    auto dbc = ParseDbcFile("data/Test_OneMessage_OneSignal.dbc");
     ASSERT_NE(nullptr, dbc);
 
     const auto& msgs = dbc->Messages();
@@ -85,6 +85,6 @@ TEST(Parsing, OneMessage_OneSignal)
 
 TEST(Parsing, RealVolvoDbc)
 {
-    auto dbc = ParseDbcFile("dbc/VolvoCanBus.dbc");
+    auto dbc = ParseDbcFile("data/VolvoCanBus.dbc");
     ASSERT_NE(nullptr, dbc);
 }
