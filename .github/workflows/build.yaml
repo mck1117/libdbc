@@ -25,6 +25,7 @@ jobs:
     - name: Upload dbcconvert
       uses: actions/upload-artifact@v4
       with:
+        name: libdbc-lin
         path: ./build/dbcconvert/dbcconvert
 
   build-windows:
@@ -49,4 +50,5 @@ jobs:
     - name: Upload dbcconvert
       uses: actions/upload-artifact@v4
       with:
-        path: ./build/dbcconvert/debug/dbcconvert
+        name: libdbc-win
+        path: ./build/dbcconvert/debug/dbcconvert.exe
