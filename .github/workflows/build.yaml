@@ -16,7 +16,7 @@ jobs:
 
     - name: Compile
       working-directory: ./build/
-      run: make -j4
+      run: cmake --build .
 
     - name: Run Tests
       working-directory: ./test/
