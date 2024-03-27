@@ -195,7 +195,7 @@ int main(int argc, char** argv)
 
             for (size_t i = 0; i < data.size(); i++)
             {
-                if (data[i] != lastData[i] && sparse)
+                if (data[i] != lastData[i] || !sparse)
                 {
                     outFile << ',' << data[i];
                     lastData[i] = data[i];
