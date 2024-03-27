@@ -44,7 +44,7 @@ jobs:
 
     - name: Run Tests
       working-directory: ./test/
-      run: ../build/test/libdbc_test
+      run: ../build/test/debug/libdbc_test
 
     - name: Upload dbcconvert
       uses: actions/upload-artifact@v4
