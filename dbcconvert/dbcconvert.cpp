@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 
+#include <cstring>
 #include <charconv>
 #include <numeric>
 
@@ -32,27 +33,74 @@ private:
 
 int main(int argc, char** argv)
 {
-    const bool sparse = true;
+    bool sparse = false;
+    std::string dbcPath;
+    std::string inputPath;
+    std::string outputPath;
 
-    if (argc != 4)
+    for (int i = 1; i < argc; i++)
     {
-        std::cout << "Usage: dbcconvert format.dbc source.csv dest.csv" << std::endl;
+        if (0 == std::strcmp(argv[i], "-sparse"))
+        {
+            sparse = true;
+        }
+        else if (0 == std::strcmp(argv[i], "-dbc"))
+        {
+            dbcPath = argv[++i];
+        }
+        else if (0 == std::strcmp(argv[i], "-in"))
+        {
+            inputPath = argv[++i];
+        }
+        else if (0 == std::strcmp(argv[i], "-out"))
+        {
+            outputPath = argv[++i];
+        }
+        else
+        {
+            std::cout << "Bad argument: " << argv[i] << std::endl;
+            break;
+        }
+    }
+
+    std::cout << "DBC: " << dbcPath << std::endl;
+    std::cout << "Input file: " << inputPath << std::endl;
+    std::cout << "Output file: " << outputPath << std::endl;
+
+    if (!dbcPath.size() || !inputPath.size() || !outputPath.size())
+    {
+        std::cout << "Usage: dbcconvert -dbc <format.dbc> -in <source.csv> -out <dest.csv> [-sparse]" << std::endl;
+
         return -1;
     }
 
-    std::ofstream outFile(argv[3]);
+    std::ifstream inputFile(inputPath);
+
+    if (!inputFile.good())
+    {
+        std::cout << "Input file \"" << inputPath << "\" failed to open" << std::endl;
+        return -2;
+    }
+
+    std::ofstream outFile(outputPath);
+
+    if (!outFile.good())
+    {
+        std::cout << "Failed to open output file " << outputPath << std::endl;
+        return -3;
+    }
 
     // Load DBC file
 
     std::unique_ptr<libdbc::Dbc> dbc;
 
     {
-        std::ifstream dbcFile(argv[1]);
+        std::ifstream dbcFile(dbcPath);
 
         if (!dbcFile.good())
         {
-            std::cout << "DBC file \"" << argv[1] << "\" failed to open" << std::endl;
-            return -2;
+            std::cout << "DBC file \"" << dbcPath << "\" failed to open" << std::endl;
+            return -4;
         }
 
         outFile << "\"Interval\"|\"ms\"|0|0|1,\"Utc\"|\"ms\"|0|0|1";
@@ -66,8 +114,8 @@ int main(int argc, char** argv)
 
         if (!dbc)
         {
-            std::cout << "DBC file \"" << argv[1] << "\" failed to parse" << std::endl;
-            return -3;
+            std::cout << "DBC file \"" << dbcPath << "\" failed to parse" << std::endl;
+            return -5;
         }
     }
 
@@ -81,14 +129,6 @@ int main(int argc, char** argv)
             << dbc->SignalCount()
             << " signals."
             << std::endl;
-    }
-
-    std::ifstream inputFile(argv[2]);
-
-    if (!inputFile.good())
-    {
-        std::cout << "Input file \"" << argv[2] << "\" failed to open" << std::endl;
-        return -2;
     }
 
     libdbc::impl::FileReader inputReader(inputFile);
