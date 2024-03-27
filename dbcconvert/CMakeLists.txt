@@ -1,6 +1,11 @@
 add_executable(dbcconvert)
 set_property(TARGET dbcconvert PROPERTY COMPILE_WARNING_AS_ERROR ON)
-target_compile_options(dbcconvert PRIVATE -Werror -Wall -Wextra -pedantic)
+
+if (WIN32)
+
+else()
+    target_compile_options(dbcconvert PRIVATE -Werror -Wall -Wextra -pedantic)
+endif()
 
 target_sources(dbcconvert
     PRIVATE
