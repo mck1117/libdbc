@@ -97,6 +97,10 @@ int main(int argc, char** argv)
     std::vector<float> lastData;
     lastData.resize(dbc->SignalCount());
 
+    size_t frameCount = 0;
+    size_t logLineCount = 0;
+    size_t skipCount = 0;
+
     while (true)
     {
         inputReader.AdvanceLine();
@@ -109,6 +113,7 @@ int main(int argc, char** argv)
         }
 
         libdbc::CanFrame frame;
+        frameCount++;
 
         CommaSplitter splitter(line);
 
@@ -160,8 +165,16 @@ int main(int argc, char** argv)
             }
 
             outFile << std::endl;
+
+            logLineCount++;
+        }
+        else
+        {
+            skipCount++;
         }
     }
+
+    std::cout << "Done! Processed " << frameCount << " frames, wrote " << logLineCount << " log entries and skipped " << skipCount << " duplicate lines." << std::endl;
 
     return 0;
 }
