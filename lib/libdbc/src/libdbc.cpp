@@ -104,8 +104,8 @@ static BitSpec ParseBitSpec(std::string_view str)
     auto lengthStart = bitposEnd + 1;
     auto lengthEnd = str.find('@', lengthStart);
 
-    result.Bitpos = util::ParseInt(str.substr(0, bitposEnd));
-    result.Length = util::ParseInt(str.substr(lengthStart, lengthEnd - lengthStart));
+    result.Bitpos = static_cast<uint8_t>(util::ParseInt(str.substr(0, bitposEnd)));
+    result.Length = static_cast<uint8_t>(util::ParseInt(str.substr(lengthStart, lengthEnd - lengthStart)));
     result.Endianness = (str[str.size() - 2] == '1') ? Endian::Little_Intel : Endian::Big_Motorola;
     result.Signed = str[str.size() - 1] == '-';
 
@@ -182,13 +182,13 @@ std::unique_ptr<Dbc> ParseDbcFile(std::istream& file, std::function<void(const S
             // Message header
             auto idStart = line.find(' ') + 1;
             auto idEnd = line.find(' ', idStart);
-            uint32_t id = util::ParseInt(line.substr(idStart, idEnd - idStart));
+            uint32_t id = static_cast<uint32_t>(util::ParseInt(line.substr(idStart, idEnd - idStart)));
 
             auto nameStart = idEnd + 1;
             auto nameEnd = line.find(':', nameStart);
 
             auto dlcStart = nameEnd + 2;
-            uint8_t dlc = util::ParseInt(line.substr(dlcStart, 1));
+            uint8_t dlc = static_cast<uint8_t>(util::ParseInt(line.substr(dlcStart, 1)));
 
             auto result = messages.try_emplace(id, id, dlc, line.substr(nameStart, nameEnd - nameStart));
 
@@ -346,7 +346,7 @@ uint64_t swap_uint64_t(uint64_t x) {
         }
     }
 
-    return (data >> shift) & mask;
+    return static_cast<uint32_t>((data >> shift) & mask);
 }
 
 namespace libdbc::impl
