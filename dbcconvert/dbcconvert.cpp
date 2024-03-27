@@ -3,8 +3,32 @@
 #include <iostream>
 #include <fstream>
 
+#include <charconv>
 #include <numeric>
-#include <regex>
+
+class CommaSplitter
+{
+public:
+    CommaSplitter(std::string_view str)
+    : m_str(str)
+    {
+    }
+
+    std::string Next()
+    {
+        size_t next = m_str.find(',', m_current);
+
+        auto result = m_str.substr(m_current, next - m_current);
+
+        m_current = next + 1;
+
+        return std::string{result};
+    }
+
+private:
+    const std::string_view m_str;
+    size_t m_current = 0;
+};
 
 int main(int argc, char** argv)
 {
@@ -66,8 +90,7 @@ int main(int argc, char** argv)
     }
 
     libdbc::impl::FileReader inputReader(inputFile);
-
-    const std::regex lineRegex("^([0-9]+),([0-9a-fA-F]+),[a-z]+,[A-Za-z]+,[0-9],([0-9]),([0-9A-Fa-f]{2}),([0-9A-Fa-f]{2}),([0-9A-Fa-f]{2}),([0-9A-Fa-f]{2}),([0-9A-Fa-f]{2}),([0-9A-Fa-f]{2}),([0-9A-Fa-f]{2}),([0-9A-Fa-f]{2}),$");
+    inputReader.AdvanceLine();
 
     std::vector<float> data;
     data.resize(dbc->SignalCount());
@@ -85,59 +108,58 @@ int main(int argc, char** argv)
             break;
         }
 
-        std::string line2(line);
+        libdbc::CanFrame frame;
 
-        std::smatch matches;
-        if (std::regex_match(line2, matches, lineRegex))
+        CommaSplitter splitter(line);
+
+        uint64_t timestamp = std::stoul(splitter.Next());
+
+        frame.Id = std::stoul(splitter.Next(), nullptr, 16);
+
+        // burn std/ext
+        splitter.Next();
+        // burn tx/rx
+        splitter.Next();
+        // burn bus
+        splitter.Next();
+
+        frame.Dlc = std::stoul(splitter.Next());
+
+        for (size_t i = 0; i < 8; i++)
         {
-            libdbc::CanFrame frame;
-
-            uint64_t timestamp = std::stoul(matches[1].str());
-            (void)timestamp;
-
-            frame.Id = std::stoul(matches[2].str(), nullptr, 16);
-            frame.Dlc = std::stoul(matches[3].str());
-
-            for (size_t i = 0; i < 8; i++)
-            {
-                frame.Data8[i] = std::stoul(matches[i + 4].str(), nullptr, 16);
-            }
-
-            bool dataChange = false;
-
-            dbc->Decode(frame, [&](const libdbc::Signal& s, uint64_t, float value)
-            {
-                // Only update if data changed
-                if (data[s.Id] != value)
-                {
-                    data[s.Id] = value;
-                    dataChange = true;
-                }
-            });
-
-            if (dataChange)
-            {
-                outFile << (timestamp * 1e-3) << ",0";
-
-                for (size_t i = 0; i < data.size(); i++)
-                {
-                    if (data[i] != lastData[i])
-                    {
-                        outFile << ',' << data[i];
-                        lastData[i] = data[i];
-                    }
-                    else
-                    {
-                        outFile << ',';
-                    }
-                }
-
-                outFile << std::endl;
-            }
+            frame.Data8[i] = std::stoul(splitter.Next(), nullptr, 16);
         }
-        else
+
+        bool dataChange = false;
+
+        dbc->Decode(frame, [&](const libdbc::Signal& s, uint64_t, float value)
         {
-            std::cout << "Skipping line " << line << std::endl;
+            // Only update if data changed
+            if (data[s.Id] != value)
+            {
+                data[s.Id] = value;
+                dataChange = true;
+            }
+        });
+
+        if (dataChange)
+        {
+            outFile << (timestamp * 1e-3) << ",0";
+
+            for (size_t i = 0; i < data.size(); i++)
+            {
+                if (data[i] != lastData[i])
+                {
+                    outFile << ',' << data[i];
+                    lastData[i] = data[i];
+                }
+                else
+                {
+                    outFile << ',';
+                }
+            }
+
+            outFile << std::endl;
         }
     }
 
