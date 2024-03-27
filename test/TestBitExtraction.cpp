@@ -272,7 +272,7 @@ TEST(Decode, MultiByte_BE)
     EXPECT_EQ(0x122334, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 3, 24));
 
     // Misaligned by 3 bits
-    EXPECT_EQ(0x122334, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 2, 24));
+    EXPECT_EQ(0x244668, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 2, 24));
 }
 
 TEST(Decode, Gm_Rpm)
