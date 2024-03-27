@@ -3,8 +3,27 @@ name: Unit Tests CI
 on: [push, pull_request]
 
 jobs:
-  build:
-    runs-on: [ubuntu-latest, windows-latest]
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: CMake Configure
+      run: mkdir build && cd build && cmake ..
+
+    - name: Compile
+      working-directory: ./build/
+      run: cmake --build .
+
+    - name: Run Tests
+      working-directory: ./test/
+      run: ../build/test/libdbc_test
+
+  build-windows:
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v4
