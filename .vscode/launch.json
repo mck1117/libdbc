@@ -29,7 +29,12 @@
         "type": "cppdbg",
         "request": "launch",
         "program": "${workspaceFolder}/build/dbcconvert/dbcconvert",
-        "args": ["test/data/VolvoCanBus.dbc", "test/data/lgx_start_idle_off.csv", "x"],
+        "args": [
+            "-dbc", "test/data/VolvoCanBus.dbc", 
+            "-in", "test/data/lgx_start_idle_off.csv",
+            "-out", "output.csv",
+            "-sparse"
+        ],
         "stopAtEntry": false,
         "cwd": "${workspaceFolder}/",
         "environment": [],
