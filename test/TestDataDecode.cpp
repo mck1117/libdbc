@@ -25,7 +25,7 @@ TEST(Decode, GmTorque)
         EXPECT_CALL(decode, Call(_, 1707, FloatEq(5.5f)));
     }
 
-    libdbc::CanFrame f{ 0x1c3, 8, { 0x46, 0xab, 0x06, 0xab, 0xff, 0x00, 0x00, 0x00 }};
+    libdbc::CanFrame f{ 0x1c3, 8, { { 0x46, 0xab, 0x06, 0xab, 0xff, 0x00, 0x00, 0x00} }};
 
     auto dbc = ParseDbcFile("data/VolvoCanBus.dbc");
     dbc->Decode(f, decode.AsStdFunction());
