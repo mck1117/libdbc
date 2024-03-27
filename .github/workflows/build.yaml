@@ -49,4 +49,4 @@ jobs:
     - name: Upload dbcconvert
       uses: actions/upload-artifact@v4
       with:
-        path: ./build/dbcconvert/dbcconvert
+        path: ./build/dbcconvert/debug/dbcconvert
