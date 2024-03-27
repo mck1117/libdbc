@@ -171,11 +171,11 @@ int main(int argc, char** argv)
         // burn bus
         splitter.Next();
 
-        frame.Dlc = std::stoul(splitter.Next());
+        frame.Dlc = static_cast<uint8_t>(std::stoul(splitter.Next()));
 
         for (size_t i = 0; i < 8; i++)
         {
-            frame.Data8[i] = std::stoul(splitter.Next(), nullptr, 16);
+            frame.Data8[i] = static_cast<uint8_t>(std::stoul(splitter.Next(), nullptr, 16));
         }
 
         bool dataChange = false;
