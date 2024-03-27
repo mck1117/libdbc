@@ -1,0 +1,22 @@
+name: Simulator
+
+on: [push, pull_request]
+
+jobs:
+  build-simulator:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: CMake Configure
+      working-directory: ./build/
+      run: cmake ..
+
+    - name: Compile
+      working-directory: ./build/
+      run: make -j4
+
+    - name: Run Tests
+      working-directory: ./test/
+      run: ../build/test/libdbc_test
