@@ -27,7 +27,7 @@ int main(int argc, char** argv)
             return -2;
         }
 
-        std::cout << "\"Time\"|\"s\"|0|0|3";
+        std::cout << "\"Interval\"|\"ms\"|0|0|1,\"Utc\"|\"ms\"|0|0|1";
 
         dbc = libdbc::ParseDbcFile(dbcFile, [](const libdbc::Signal& s)
             {
@@ -115,7 +115,7 @@ int main(int argc, char** argv)
 
             if (dataChange)
             {
-                std::cout << (timestamp * 1e-6);
+                std::cout << (timestamp * 1e-3) << ",0";
 
                 for (size_t i = 0; i < data.size(); i++)
                 {
