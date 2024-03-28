@@ -6,6 +6,7 @@
 #include <cstring>
 #include <charconv>
 #include <numeric>
+#include <optional>
 #include <string>
 
 class CommaSplitter
@@ -31,6 +32,56 @@ private:
     const std::string_view m_str;
     size_t m_current = 0;
 };
+
+class FrameParser
+{
+public:
+    FrameParser(libdbc::impl::FileReader& file)
+        : m_file(file)
+    {
+        m_file.AdvanceLine();
+    }
+
+    std::optional<std::pair<uint64_t, libdbc::CanFrame>> GetFrame()
+    {
+        m_file.AdvanceLine();
+        auto line = m_file.Line();
+
+        if (!line.size())
+        {
+            // end of input file
+            return std::nullopt;
+        }
+
+
+        CommaSplitter splitter(line);
+
+        uint64_t timestamp = std::stoul(splitter.Next());
+
+        libdbc::CanFrame frame;
+        frame.Id = static_cast<uint32_t>(std::stoul(splitter.Next(), nullptr, 16));
+
+        // burn std/ext
+        splitter.Next();
+        // burn tx/rx
+        splitter.Next();
+        // burn bus
+        splitter.Next();
+
+        frame.Dlc = static_cast<uint8_t>(std::stoul(splitter.Next()));
+
+        for (size_t i = 0; i < 8; i++)
+        {
+            frame.Data8[i] = static_cast<uint8_t>(std::stoul(splitter.Next(), nullptr, 16));
+        }
+
+        return std::pair<uint64_t, libdbc::CanFrame>{ timestamp, frame };
+    }
+
+private:
+    libdbc::impl::FileReader& m_file;
+};
+
 
 int main(int argc, char** argv)
 {
@@ -133,7 +184,7 @@ int main(int argc, char** argv)
     }
 
     libdbc::impl::FileReader inputReader(inputFile);
-    inputReader.AdvanceLine();
+    FrameParser parser(inputReader);
 
     std::vector<float> data;
     data.resize(dbc->SignalCount());
@@ -146,37 +197,17 @@ int main(int argc, char** argv)
 
     while (true)
     {
-        inputReader.AdvanceLine();
-        auto line = inputReader.Line();
+        auto opt_frame = parser.GetFrame();
 
-        if (!line.size())
+        if (!opt_frame)
         {
-            // end of input file
+            // end of file
             break;
         }
 
-        libdbc::CanFrame frame;
+        const auto& [timestamp, frame] = opt_frame.value();
+
         frameCount++;
-
-        CommaSplitter splitter(line);
-
-        uint64_t timestamp = std::stoul(splitter.Next());
-
-        frame.Id = static_cast<uint32_t>(std::stoul(splitter.Next(), nullptr, 16));
-
-        // burn std/ext
-        splitter.Next();
-        // burn tx/rx
-        splitter.Next();
-        // burn bus
-        splitter.Next();
-
-        frame.Dlc = static_cast<uint8_t>(std::stoul(splitter.Next()));
-
-        for (size_t i = 0; i < 8; i++)
-        {
-            frame.Data8[i] = static_cast<uint8_t>(std::stoul(splitter.Next(), nullptr, 16));
-        }
 
         bool dataChange = false;
 
