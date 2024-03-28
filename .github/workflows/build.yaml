@@ -12,6 +12,9 @@ jobs:
         submodules: true
 
     - name: CMake Configure
+      env:
+        CC:   gcc-13
+        CXX:  g++-13
       run: mkdir build && cd build && cmake ..
 
     - name: Compile
