@@ -232,7 +232,20 @@ int main(int argc, char** argv)
                 // only if the data changed write the value
                 if (data[i] != lastData[i] || !sparse)
                 {
-                    outFile << std::to_string(data[i]);
+                    constexpr size_t sz = 128;
+                    char floatBuf[sz];
+                    const auto res = std::to_chars(floatBuf, floatBuf + sz, data[i]);
+
+                    if (res.ec == std::errc())
+                    {
+                        outFile << std::string_view(floatBuf, res.ptr);
+                    }
+                    else
+                    {
+                        // to_chars failed, fall back to operator<<
+                        outFile << data[i];
+                    }
+
                     lastData[i] = data[i];
                 }
             }
