@@ -271,10 +271,10 @@ int main(int argc, char** argv)
     outFile << std::flush;
 
     auto endTime = std::chrono::steady_clock::now();
-    float durationSec = 1e-9 * (endTime - startTime).count();
+    float durationSec = 1e-9f * (endTime - startTime).count();
 
     std::cout << "Done! Processed " << frameCount << " frames, wrote " << logLineCount << " log entries and skipped " << skipCount << " duplicate lines." << std::endl;
-    std::cout << "Duration " << durationSec << " s, rate " << (1e-3 * frameCount / durationSec) << " kfps";
+    std::cout << "Duration " << durationSec << " s, rate " << (1e-3f * frameCount / durationSec) << " kfps";
 
     return 0;
 }
