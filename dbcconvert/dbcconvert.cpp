@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 
+#include <chrono>
 #include <cstring>
 #include <charconv>
 #include <numeric>
@@ -203,6 +204,8 @@ int main(int argc, char** argv)
     size_t logLineCount = 0;
     size_t skipCount = 0;
 
+    auto startTime = std::chrono::steady_clock::now();
+
     while (true)
     {
         auto opt_frame = parser.GetFrame();
@@ -264,7 +267,14 @@ int main(int argc, char** argv)
         }
     }
 
+    // Flush so we get an accurate time estimate
+    outFile << std::flush;
+
+    auto endTime = std::chrono::steady_clock::now();
+    float durationSec = 1e-9 * (endTime - startTime).count();
+
     std::cout << "Done! Processed " << frameCount << " frames, wrote " << logLineCount << " log entries and skipped " << skipCount << " duplicate lines." << std::endl;
+    std::cout << "Duration " << durationSec << " s, rate " << (1e-3 * frameCount / durationSec) << " kfps";
 
     return 0;
 }
