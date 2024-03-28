@@ -11,6 +11,7 @@ endif()
 target_sources(libdbc
     PRIVATE
         src/libdbc.cpp
+        src/libdbc_parse.cpp
 )
 
 target_include_directories(libdbc
