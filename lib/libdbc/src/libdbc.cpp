@@ -317,33 +317,8 @@ uint64_t swap_uint64_t(uint64_t x) {
         data = swap_uint64_t(data);
 
         // I don't love this, but it works!?
-        switch (bitpos % 8)
-        {
-            case 0:
-                shift = 64 - bitpos - length - 7;
-                break;
-            case 1:
-                shift = 64 - bitpos - length - 5;
-                break;
-            case 2:
-                shift = 64 - bitpos - length - 3;
-                break;
-            case 3:
-                shift = 64 - bitpos - length - 1;
-                break;
-            case 4:
-                shift = 64 - bitpos - length + 1;
-                break;
-            case 5:
-                shift = 64 - bitpos - length + 3;
-                break;
-            case 6:
-                shift = 64 - bitpos - length + 5;
-                break;
-            case 7:
-                shift = 64 - bitpos - length + 7;
-                break;
-        }
+        const int8_t shiftCorrection[8] = { -7, -5, -3, -1, 1, 3, 5, 7 };
+        shift = 64 - bitpos - length + shiftCorrection[bitpos % 8];
     }
 
     return static_cast<uint32_t>((data >> shift) & mask);
