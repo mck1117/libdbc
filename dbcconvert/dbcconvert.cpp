@@ -238,7 +238,8 @@ int main(int argc, char** argv)
                 }
             }
 
-            outFile << std::endl;
+            // std::endl forces a flush - just write a newline instead
+            outFile << '\n';
 
             logLineCount++;
         }
