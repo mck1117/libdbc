@@ -4,7 +4,7 @@
 
 #include <fstream>
 
-TEST(Parsing, ParseInt)
+/*TEST(Parsing, ParseInt)
 {
     EXPECT_EQ(0, libdbc::util::ParseInt("0"));
     EXPECT_EQ(0, libdbc::util::ParseInt("-0"));
@@ -44,7 +44,7 @@ TEST(Parsing, ParseFloat)
     EXPECT_FLOAT_EQ(-0.1f, libdbc::util::ParseFloat("-0.1"));
     EXPECT_FLOAT_EQ(-123.45f, libdbc::util::ParseFloat("-123.45"));
     EXPECT_FLOAT_EQ(-0.0001f, libdbc::util::ParseFloat("-0.0001"));
-}
+}*/
 
 static std::unique_ptr<libdbc::Dbc> ParseDbcFile(const char* path)
 {

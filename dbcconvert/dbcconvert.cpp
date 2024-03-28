@@ -34,14 +34,6 @@ private:
     size_t m_current = 0;
 };
 
-template <typename T>
-static T from_sv(std::string_view str, int base = 10)
-{
-    T result;
-    std::from_chars(str.data(), str.data() + str.size(), result, base);
-    return result;
-}
-
 class FrameParser
 {
 public:
@@ -68,7 +60,7 @@ public:
         uint64_t timestamp = std::stoul(splitter.Next());
 
         libdbc::CanFrame frame;
-        frame.Id = from_sv<uint32_t>(splitter.Next(), 16);
+        frame.Id = libdbc::util::from_sv<uint32_t>(splitter.Next(), 16);
 
         // burn std/ext
         splitter.Next();
@@ -77,11 +69,11 @@ public:
         // burn bus
         splitter.Next();
 
-        frame.Dlc = from_sv<uint8_t>(splitter.Next(), 10);
+        frame.Dlc = libdbc::util::from_sv<uint8_t>(splitter.Next(), 10);
 
         for (size_t i = 0; i < 8; i++)
         {
-            frame.Data8[i] = from_sv<uint8_t>(splitter.Next(), 16);
+            frame.Data8[i] = libdbc::util::from_sv<uint8_t>(splitter.Next(), 16);
         }
 
         return std::pair<uint64_t, libdbc::CanFrame>{ timestamp, frame };

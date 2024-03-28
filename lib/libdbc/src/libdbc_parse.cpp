@@ -1,86 +1,9 @@
 #include <libdbc/libdbc.h>
 
+#include <charconv>
+
 using namespace libdbc;
 using namespace libdbc::impl;
-
-namespace libdbc::util
-{
-int64_t ParseInt(std::string_view str)
-{
-    bool negative = str.size() && (str[0] == '-');
-
-    size_t i = negative ? 1 : 0;
-
-    int64_t result = 0;
-
-    for (; i < str.size(); i++)
-    {
-        auto c = str[i];
-
-        result = result * 10;
-        result += (c - '0');
-    }
-
-    if (negative)
-    {
-        result *= -1;
-    }
-
-    return result;
-}
-
-float ParseFloat(std::string_view str)
-{
-    bool negative = str.size() && (str[0] == '-');
-
-    size_t i = negative ? 1 : 0;
-
-    int whole = 0;
-
-    // Parse until we find the dot (if one exists)
-    for (; i < str.size(); i++)
-    {
-        auto c = str[i];
-
-        if (c == '.')
-        {
-            i++;
-            break;
-        }
-
-        whole = whole * 10;
-        whole += (c - '0');
-    }
-
-    uint32_t fraction = 0;
-    float scale = 1;
-
-    for (; i < str.size(); i++)
-    {
-        auto c = str[i];
-
-        fraction = fraction * 10;
-        fraction += (c - '0');
-
-        scale *= 0.1f;
-
-        // too many significant digits to represent
-        if (fraction > 429496729)
-        {
-            break;
-        }
-    }
-
-    float result = whole + ((float)fraction * scale);
-
-    if (negative)
-    {
-        result *= -1;
-    }
-
-    return result;
-}
-}
 
 struct BitSpec
 {
@@ -99,8 +22,8 @@ static BitSpec ParseBitSpec(std::string_view str)
     auto lengthStart = bitposEnd + 1;
     auto lengthEnd = str.find('@', lengthStart);
 
-    result.Bitpos = static_cast<uint8_t>(util::ParseInt(str.substr(0, bitposEnd)));
-    result.Length = static_cast<uint8_t>(util::ParseInt(str.substr(lengthStart, lengthEnd - lengthStart)));
+    result.Bitpos = util::from_sv<uint8_t>(str.substr(0, bitposEnd));
+    result.Length = util::from_sv<uint8_t>(str.substr(lengthStart, lengthEnd - lengthStart));
     result.Endianness = (str[str.size() - 2] == '1') ? Endian::Little_Intel : Endian::Big_Motorola;
     result.Signed = str[str.size() - 1] == '-';
 
@@ -115,8 +38,8 @@ static std::pair<float, float> ParseScaleOffset(std::string_view str)
 
     return
     {
-        util::ParseFloat(str.substr(0, scaleEnd)),
-        util::ParseFloat(str.substr(offsetStart))
+        util::from_sv<float>(str.substr(0, scaleEnd)),
+        util::from_sv<float>(str.substr(offsetStart))
     };
 }
 
@@ -128,8 +51,8 @@ static std::pair<float, float> ParseMinmax(std::string_view str)
 
     return
     {
-        util::ParseFloat(str.substr(0, minEnd)),
-        util::ParseFloat(str.substr(maxStart))
+        util::from_sv<float>(str.substr(0, minEnd)),
+        util::from_sv<float>(str.substr(maxStart))
     };
 }
 
@@ -175,13 +98,13 @@ static std::pair<float, float> ParseMinmax(std::string_view str)
             // Message header
             auto idStart = line.find(' ') + 1;
             auto idEnd = line.find(' ', idStart);
-            uint32_t id = static_cast<uint32_t>(util::ParseInt(line.substr(idStart, idEnd - idStart)));
+            uint32_t id = util::from_sv<uint32_t>(line.substr(idStart, idEnd - idStart));
 
             auto nameStart = idEnd + 1;
             auto nameEnd = line.find(':', nameStart);
 
             auto dlcStart = nameEnd + 2;
-            uint8_t dlc = static_cast<uint8_t>(util::ParseInt(line.substr(dlcStart, 1)));
+            uint8_t dlc = util::from_sv<uint8_t>(line.substr(dlcStart, 1));
 
             auto result = messages.try_emplace(id, id, dlc, line.substr(nameStart, nameEnd - nameStart));
 

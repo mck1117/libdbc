@@ -1,5 +1,6 @@
 #pragma once
 
+#include <charconv>
 #include <memory>
 #include <vector>
 #include <istream>
@@ -129,8 +130,13 @@ private:
 
 namespace util
 {
-    int64_t ParseInt(std::string_view str);
-    float ParseFloat(std::string_view str);
+    template <typename T>
+    static T from_sv(std::string_view str, int base = 10)
+    {
+        T result;
+        std::from_chars(str.data(), str.data() + str.size(), std::ref(result), base);
+        return result;
+    }
 }
 
 } // namespace libdbc
