@@ -79,7 +79,7 @@ struct CanFrame
 class Dbc
 {
 public:
-    Dbc(size_t signalCount, const std::map<uint32_t, Message> messages)
+    Dbc(size_t signalCount, const std::unordered_map<uint32_t, Message> messages)
         : m_signalCount(signalCount)
         , m_messages(messages)
     {
@@ -92,7 +92,7 @@ public:
         return m_signalCount;
     }
 
-    const std::map<uint32_t, Message>& Messages() const
+    const std::unordered_map<uint32_t, Message>& Messages() const
     {
         return m_messages;
     }
@@ -101,7 +101,7 @@ public:
 
 private:
     const size_t m_signalCount;
-    std::map<uint32_t, Message> m_messages;
+    std::unordered_map<uint32_t, Message> m_messages;
 };
 
 std::unique_ptr<Dbc> ParseDbcFile(std::istream& file, std::function<void(const Signal&)> = nullptr);
