@@ -162,7 +162,7 @@ int main(int argc, char** argv)
 
         uint64_t timestamp = std::stoul(splitter.Next());
 
-        frame.Id = std::stoul(splitter.Next(), nullptr, 16);
+        frame.Id = static_cast<uint32_t>(std::stoul(splitter.Next(), nullptr, 16));
 
         // burn std/ext
         splitter.Next();
