@@ -12,7 +12,7 @@ using ::testing::MockFunction;
 static std::unique_ptr<libdbc::Dbc> ParseDbcFile(const char* path)
 {
     std::ifstream f(path);
-    return libdbc::ParseDbcFile(f);
+    return libdbc::Dbc::Parse(f);
 }
 
 TEST(Decode, GmTorque)

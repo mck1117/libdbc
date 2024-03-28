@@ -166,7 +166,7 @@ int main(int argc, char** argv)
 
         outFile << "\"Interval\"|\"ms\"|0|0|1,\"Utc\"|\"ms\"|0|0|1";
 
-        dbc = libdbc::ParseDbcFile(dbcFile, [&](const libdbc::Signal& s)
+        dbc = libdbc::Dbc::Parse(dbcFile, [&](const libdbc::Signal& s)
             {
                 outFile << ",\"" << s.Name << "\"|\"" << s.Unit << "\"|" << s.Min << '|' << s.Max  << '|' << "3";
             });

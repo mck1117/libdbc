@@ -3,7 +3,7 @@
 using namespace libdbc;
 using namespace libdbc::impl;
 
-namespace
+namespace libdbc::util
 {
 int64_t ParseInt(std::string_view str)
 {
@@ -133,7 +133,7 @@ static std::pair<float, float> ParseMinmax(std::string_view str)
     };
 }
 
-std::unique_ptr<Dbc> ParseDbcFile(std::istream& file, std::function<void(const Signal& s)> onSignal)
+/*static*/ std::unique_ptr<Dbc> Dbc::Parse(std::istream& file, std::function<void(const Signal& s)> onSignal)
 {
     message_container messages;
 

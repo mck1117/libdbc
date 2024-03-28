@@ -16,11 +16,11 @@ enum class Endian : uint8_t
     Big_Motorola = 1
 };
 
-struct Signal
+struct Signal final
 {
     const size_t Id;
 
-    std::string Name;
+    const std::string Name;
     const Endian Endianness;
     const bool Signed;
     const uint8_t Bitpos;
@@ -29,7 +29,7 @@ struct Signal
     const float Offset;
     float Min;
     float Max;
-    std::string Unit;
+    const std::string Unit;
 
     Signal(size_t id, std::string_view name, Endian endian, bool isSigned, uint8_t bitpos, uint8_t length, float factor, float offset, float min, float max, std::string_view unit)
         : Id(id)
@@ -47,11 +47,11 @@ struct Signal
     }
 };
 
-struct Message
+struct Message final
 {
     const uint32_t Id;
     const uint8_t Dlc;
-    std::string Name;
+    const std::string Name;
     std::vector<Signal> Signals;
 
     Message(uint32_t id, uint8_t dlc, std::string_view name)
@@ -62,11 +62,7 @@ struct Message
     }
 };
 
-using message_container = std::unordered_map<uint32_t, Message>;
-
-using DecoderFunc = std::function<void(const Signal& signal, uint64_t bitsValue, float scaledValue)>;
-
-struct CanFrame
+struct CanFrame final
 {
     uint32_t Id;
     uint8_t Dlc;
@@ -78,9 +74,14 @@ struct CanFrame
     };
 };
 
-class Dbc
+class Dbc final
 {
 public:
+    using message_container = std::unordered_map<uint32_t, Message>;
+    using DecoderFunc = std::function<void(const Signal& signal, uint64_t bitsValue, float scaledValue)>;
+
+    static std::unique_ptr<Dbc> Parse(std::istream& file, std::function<void(const Signal&)> = nullptr);
+
     Dbc(size_t signalCount, const message_container messages)
         : m_signalCount(signalCount)
         , m_messages(messages)
@@ -105,8 +106,6 @@ private:
     const size_t m_signalCount;
     message_container m_messages;
 };
-
-std::unique_ptr<Dbc> ParseDbcFile(std::istream& file, std::function<void(const Signal&)> = nullptr);
 
 namespace impl
 {
