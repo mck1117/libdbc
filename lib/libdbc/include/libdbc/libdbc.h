@@ -62,6 +62,8 @@ struct Message
     }
 };
 
+using message_container = std::unordered_map<uint32_t, Message>;
+
 using DecoderFunc = std::function<void(const Signal& signal, uint64_t bitsValue, float scaledValue)>;
 
 struct CanFrame
@@ -79,7 +81,7 @@ struct CanFrame
 class Dbc
 {
 public:
-    Dbc(size_t signalCount, const std::unordered_map<uint32_t, Message> messages)
+    Dbc(size_t signalCount, const message_container messages)
         : m_signalCount(signalCount)
         , m_messages(messages)
     {
@@ -92,7 +94,7 @@ public:
         return m_signalCount;
     }
 
-    const std::unordered_map<uint32_t, Message>& Messages() const
+    const message_container& Messages() const
     {
         return m_messages;
     }
@@ -101,7 +103,7 @@ public:
 
 private:
     const size_t m_signalCount;
-    std::unordered_map<uint32_t, Message> m_messages;
+    message_container m_messages;
 };
 
 std::unique_ptr<Dbc> ParseDbcFile(std::istream& file, std::function<void(const Signal&)> = nullptr);

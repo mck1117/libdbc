@@ -142,7 +142,7 @@ static std::pair<float, float> ParseMinmax(std::string_view str)
 
 std::unique_ptr<Dbc> ParseDbcFile(std::istream& file, std::function<void(const Signal& s)> onSignal)
 {
-    std::unordered_map<uint32_t, Message> messages;
+    message_container messages;
 
     FileReader fr(file);
 
