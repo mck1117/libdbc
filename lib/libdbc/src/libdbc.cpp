@@ -259,7 +259,7 @@ std::unique_ptr<Dbc> ParseDbcFile(std::istream& file, std::function<void(const S
 
 }
 
-void Dbc::Decode(CanFrame& frame, DecoderFunc onDecoded) const
+void Dbc::Decode(const CanFrame& frame, DecoderFunc onDecoded) const
 {
     auto search = m_messages.find(frame.Id);
 

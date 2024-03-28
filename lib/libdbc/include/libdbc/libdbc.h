@@ -85,7 +85,7 @@ public:
     {
     }
 
-    void Decode(CanFrame& frame, DecoderFunc onDecoded) const;
+    void Decode(const CanFrame& frame, DecoderFunc onDecoded) const;
 
     size_t SignalCount() const
     {
