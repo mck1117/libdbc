@@ -236,15 +236,7 @@ int main(int argc, char** argv)
                     char floatBuf[sz];
                     const auto res = std::to_chars(floatBuf, floatBuf + sz, data[i]);
 
-                    if (res.ec == std::errc())
-                    {
-                        outFile << std::string_view(floatBuf, res.ptr);
-                    }
-                    else
-                    {
-                        // to_chars failed, fall back to operator<<
-                        outFile << data[i];
-                    }
+                    outFile << std::string_view(floatBuf, res.ptr);
 
                     lastData[i] = data[i];
                 }
