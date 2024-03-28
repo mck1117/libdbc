@@ -227,14 +227,13 @@ int main(int argc, char** argv)
 
             for (size_t i = 0; i < data.size(); i++)
             {
+                outFile << ',';
+
+                // only if the data changed write the value
                 if (data[i] != lastData[i] || !sparse)
                 {
-                    outFile << ',' << data[i];
+                    outFile << std::to_string(data[i]);
                     lastData[i] = data[i];
-                }
-                else
-                {
-                    outFile << ',';
                 }
             }
 
