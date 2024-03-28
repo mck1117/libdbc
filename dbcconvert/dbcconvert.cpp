@@ -235,18 +235,21 @@ int main(int argc, char** argv)
 
             for (size_t i = 0; i < data.size(); i++)
             {
-                outFile << ',';
-
                 // only if the data changed write the value
                 if (data[i] != lastData[i] || !sparse)
                 {
                     constexpr size_t sz = 128;
-                    char floatBuf[sz];
-                    const auto res = std::to_chars(floatBuf, floatBuf + sz, data[i]);
+                    char buf[sz];
+                    buf[0] = ',';
+                    const auto res = std::to_chars(buf + 1, buf + sz, data[i]);
 
-                    outFile << std::string_view(floatBuf, res.ptr);
+                    outFile << std::string_view(buf, res.ptr);
 
                     lastData[i] = data[i];
+                }
+                else
+                {
+                    outFile << ',';
                 }
             }
 
