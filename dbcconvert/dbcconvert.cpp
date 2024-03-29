@@ -264,7 +264,7 @@ int main(int argc, char** argv)
     }
 
     // Flush so we get an accurate time estimate
-    outFile << '\n' << std::flush;
+    outFile << std::flush;
 
     auto endTime = std::chrono::steady_clock::now();
     float durationSec = 1e-9f * (endTime - startTime).count();
