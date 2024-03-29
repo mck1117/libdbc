@@ -57,7 +57,7 @@ public:
 
         CommaSplitter splitter(line);
 
-        uint64_t timestamp = std::stoul(splitter.Next());
+        uint64_t timestamp = libdbc::util::from_sv<uint64_t>(splitter.Next());
 
         libdbc::CanFrame frame;
         frame.Id = libdbc::util::from_sv<uint32_t>(splitter.Next(), 16);
@@ -69,7 +69,7 @@ public:
         // burn bus
         splitter.Next();
 
-        frame.Dlc = libdbc::util::from_sv<uint8_t>(splitter.Next(), 10);
+        frame.Dlc = libdbc::util::from_sv<uint8_t>(splitter.Next());
 
         for (size_t i = 0; i < 8; i++)
         {
@@ -224,14 +224,14 @@ int main(int argc, char** argv)
             }
         });
 
-        if (dataChange)
+        if (dataChange) [[unlikely]]
         {
             // If you need a line longer than this, good luck
             static char lineBuffer[16 * 1024];
             char* const lineEnd = lineBuffer + sizeof(lineBuffer);
             char* linePtr = lineBuffer;
 
-            auto res = std::to_chars(linePtr, lineEnd, (timestamp * 1e-3));
+            auto res = std::to_chars(linePtr, lineEnd, (timestamp * 1e-3f));
             // TODO: check res.err
             linePtr = res.ptr;
             *linePtr++ = ',';
