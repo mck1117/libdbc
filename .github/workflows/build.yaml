@@ -31,6 +31,34 @@ jobs:
         name: dbcconvert-lin
         path: ./build/dbcconvert/dbcconvert
 
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: CMake Configure
+      env:
+        CC:   gcc-13
+        CXX:  g++-13
+      run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release ..
+
+    - name: Compile
+      working-directory: ./build/
+      run: cmake --build .
+
+    - name: Run Tests
+      working-directory: ./test/
+      run: ../build/test/libdbc_test
+
+    - name: Upload dbcconvert
+      uses: actions/upload-artifact@v4
+      with:
+        name: dbcconvert-macos
+        path: ./build/dbcconvert/dbcconvert
+
   build-windows:
     runs-on: windows-latest
 
