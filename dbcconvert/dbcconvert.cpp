@@ -46,14 +46,13 @@ public:
     std::optional<std::pair<uint64_t, libdbc::CanFrame>> GetFrame()
     {
         m_file.AdvanceLine();
-        auto line = m_file.Line();
+        std::string_view line = m_file.Line();
 
         if (!line.size())
         {
             // end of input file
             return std::nullopt;
         }
-
 
         CommaSplitter splitter(line);
 
@@ -76,7 +75,7 @@ public:
             frame.Data8[i] = libdbc::util::from_sv<uint8_t>(splitter.Next(), 16);
         }
 
-        return std::pair<uint64_t, libdbc::CanFrame>{ timestamp, frame };
+        return std::optional{ std::pair<uint64_t, libdbc::CanFrame>{ timestamp, frame } };
     }
 
 private:
