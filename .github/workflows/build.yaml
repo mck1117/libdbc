@@ -15,7 +15,7 @@ jobs:
       env:
         CC:   gcc-13
         CXX:  g++-13
-      run: mkdir build && cd build && cmake ..
+      run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release ..
 
     - name: Compile
       working-directory: ./build/
@@ -40,7 +40,7 @@ jobs:
         submodules: true
 
     - name: CMake Configure
-      run: mkdir build && cd build && cmake ..
+      run: mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release ..
 
     - name: Compile
       working-directory: ./build/

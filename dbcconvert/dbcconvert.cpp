@@ -271,7 +271,7 @@ int main(int argc, char** argv)
     float durationSec = 1e-9f * (endTime - startTime).count();
 
     std::cout << "Done! Processed " << frameCount << " frames, wrote " << logLineCount << " log entries and skipped " << skipCount << " duplicate lines." << std::endl;
-    std::cout << "Duration " << durationSec << " s, rate " << (1e-3f * frameCount / durationSec) << " kfps";
+    std::cout << "Duration " << durationSec << " s, rate " << (1e-3f * frameCount / durationSec) << " kfps" << std::endl << std::endl;
 
     return 0;
 }
