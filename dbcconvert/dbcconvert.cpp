@@ -226,30 +226,35 @@ int main(int argc, char** argv)
 
         if (dataChange)
         {
-            outFile << (timestamp * 1e-3) << ",0";
+            // If you need a line longer than this, good luck
+            static char lineBuffer[16 * 1024];
+            char* const lineEnd = lineBuffer + sizeof(lineBuffer);
+            char* linePtr = lineBuffer;
+
+            auto res = std::to_chars(linePtr, lineEnd, (timestamp * 1e-3));
+            // TODO: check res.err
+            linePtr = res.ptr;
+            *linePtr++ = ',';
+            *linePtr++ = '0';   // this 0 is the UTC field
 
             for (size_t i = 0; i < data.size(); i++)
             {
+                *linePtr++ = ',';
+
                 // only if the data changed write the value
                 if (data[i] != lastData[i] || !sparse)
                 {
-                    constexpr size_t sz = 128;
-                    char buf[sz];
-                    buf[0] = ',';
-                    const auto res = std::to_chars(buf + 1, buf + sz, data[i]);
-
-                    outFile << std::string_view(buf, res.ptr);
+                    res = std::to_chars(linePtr, lineEnd, data[i]);
+                    // TODO: check res.err
+                    linePtr = res.ptr;
 
                     lastData[i] = data[i];
                 }
-                else
-                {
-                    outFile << ',';
-                }
             }
 
-            // std::endl forces a flush - just write a newline instead
-            outFile << '\n';
+            *linePtr++ = '\n';
+
+            outFile << std::string_view(lineBuffer, linePtr - lineBuffer);
 
             logLineCount++;
         }
@@ -260,7 +265,7 @@ int main(int argc, char** argv)
     }
 
     // Flush so we get an accurate time estimate
-    outFile << std::flush;
+    outFile << '\n' << std::flush;
 
     auto endTime = std::chrono::steady_clock::now();
     float durationSec = 1e-9f * (endTime - startTime).count();
