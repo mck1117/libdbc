@@ -82,6 +82,93 @@ private:
     libdbc::impl::FileReader& m_file;
 };
 
+struct ConversionStat
+{
+    size_t FrameCount = 0;
+    size_t LogLineCount = 0;
+    size_t SkipCount = 0;
+};
+
+static ConversionStat doConversion(const libdbc::Dbc* dbc, std::istream& inputFile, std::ostream& outFile, bool sparse)
+{
+    ConversionStat stats;
+
+    libdbc::impl::FileReader inputReader(inputFile);
+    FrameParser parser(inputReader);
+
+    std::vector<float> data;
+    data.resize(dbc->SignalCount());
+    std::vector<float> lastData;
+    lastData.resize(dbc->SignalCount());
+
+    while (true)
+    {
+        auto opt_frame = parser.GetFrame();
+
+        if (!opt_frame)
+        {
+            // end of file
+            break;
+        }
+
+        const auto& [timestamp, frame] = opt_frame.value();
+
+        stats.FrameCount++;
+
+        bool dataChange = false;
+
+        dbc->Decode(frame, [&](const libdbc::Signal& s, uint64_t, float value)
+        {
+            // Only update if data changed
+            if (data[s.Id] != value)
+            {
+                data[s.Id] = value;
+                dataChange = true;
+            }
+        });
+
+        if (dataChange) [[unlikely]]
+        {
+            // If you need a line longer than this, good luck
+            static char lineBuffer[16 * 1024];
+            char* const lineEnd = lineBuffer + sizeof(lineBuffer);
+            char* linePtr = lineBuffer;
+
+            auto res = std::to_chars(linePtr, lineEnd, (timestamp * 1e-3f));
+            // TODO: check res.err
+            linePtr = res.ptr;
+            *linePtr++ = ',';
+            *linePtr++ = '0';   // this 0 is the UTC field
+
+            for (size_t i = 0; i < data.size(); i++)
+            {
+                *linePtr++ = ',';
+
+                // only if the data changed write the value
+                if (data[i] != lastData[i] || !sparse)
+                {
+                    res = std::to_chars(linePtr, lineEnd, data[i]);
+                    // TODO: check res.err
+                    linePtr = res.ptr;
+
+                    lastData[i] = data[i];
+                }
+            }
+
+            *linePtr++ = '\n';
+
+            outFile << std::string_view(lineBuffer, linePtr - lineBuffer);
+
+            stats.LogLineCount++;
+        }
+        else
+        {
+            stats.SkipCount++;
+        }
+    }
+
+    return stats;
+}
 
 int main(int argc, char** argv)
 {
@@ -183,85 +270,9 @@ int main(int argc, char** argv)
             << std::endl;
     }
 
-    libdbc::impl::FileReader inputReader(inputFile);
-    FrameParser parser(inputReader);
-
-    std::vector<float> data;
-    data.resize(dbc->SignalCount());
-    std::vector<float> lastData;
-    lastData.resize(dbc->SignalCount());
-
-    size_t frameCount = 0;
-    size_t logLineCount = 0;
-    size_t skipCount = 0;
-
     auto startTime = std::chrono::steady_clock::now();
 
-    while (true)
-    {
-        auto opt_frame = parser.GetFrame();
-
-        if (!opt_frame)
-        {
-            // end of file
-            break;
-        }
-
-        const auto& [timestamp, frame] = opt_frame.value();
-
-        frameCount++;
-
-        bool dataChange = false;
-
-        dbc->Decode(frame, [&](const libdbc::Signal& s, uint64_t, float value)
-        {
-            // Only update if data changed
-            if (data[s.Id] != value)
-            {
-                data[s.Id] = value;
-                dataChange = true;
-            }
-        });
-
-        if (dataChange) [[unlikely]]
-        {
-            // If you need a line longer than this, good luck
-            static char lineBuffer[16 * 1024];
-            char* const lineEnd = lineBuffer + sizeof(lineBuffer);
-            char* linePtr = lineBuffer;
-
-            auto res = std::to_chars(linePtr, lineEnd, (timestamp * 1e-3f));
-            // TODO: check res.err
-            linePtr = res.ptr;
-            *linePtr++ = ',';
-            *linePtr++ = '0';   // this 0 is the UTC field
-
-            for (size_t i = 0; i < data.size(); i++)
-            {
-                *linePtr++ = ',';
-
-                // only if the data changed write the value
-                if (data[i] != lastData[i] || !sparse)
-                {
-                    res = std::to_chars(linePtr, lineEnd, data[i]);
-                    // TODO: check res.err
-                    linePtr = res.ptr;
-
-                    lastData[i] = data[i];
-                }
-            }
-
-            *linePtr++ = '\n';
-
-            outFile << std::string_view(lineBuffer, linePtr - lineBuffer);
-
-            logLineCount++;
-        }
-        else
-        {
-            skipCount++;
-        }
-    }
+    auto stats = doConversion(dbc.get(), inputFile, outFile, sparse);
 
     // Flush so we get an accurate time estimate
     outFile << std::flush;
@@ -269,8 +280,8 @@ int main(int argc, char** argv)
     auto endTime = std::chrono::steady_clock::now();
     float durationSec = 1e-9f * (endTime - startTime).count();
 
-    std::cout << "Done! Processed " << frameCount << " frames, wrote " << logLineCount << " log entries and skipped " << skipCount << " duplicate lines." << std::endl;
-    std::cout << "Duration " << durationSec << " s, rate " << (1e-3f * frameCount / durationSec) << " kfps" << std::endl << std::endl;
+    std::cout << "Done! Processed " << stats.FrameCount << " frames, wrote " << stats.LogLineCount << " log entries and skipped " << stats.SkipCount << " duplicate lines." << std::endl;
+    std::cout << "Duration " << durationSec << " s, rate " << (1e-3f * stats.FrameCount / durationSec) << " kfps" << std::endl << std::endl;
 
     return 0;
 }
