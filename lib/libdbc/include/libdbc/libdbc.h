@@ -131,7 +131,7 @@ private:
 namespace util
 {
     template <typename T>
-    static std::enable_if_t<!std::is_floating_point_v<T>, T> from_sv(std::string_view str, int base = 10)
+    inline std::enable_if_t<!std::is_floating_point_v<T>, T> from_sv(std::string_view str, int base = 10)
     {
         T result{};
         std::from_chars(str.data(), str.data() + str.size(), result, base);
@@ -139,7 +139,7 @@ namespace util
     }
 
     template <typename T>
-    static std::enable_if_t<std::is_floating_point_v<T>, T> from_sv(std::string_view str)
+    inline std::enable_if_t<std::is_floating_point_v<T>, T> from_sv(std::string_view str)
     {
         T result{};
         std::from_chars(str.data(), str.data() + str.size(), result);
