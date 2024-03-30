@@ -56,11 +56,11 @@ void Dbc::Decode(const CanFrame& frame, DecoderFunc onDecoded) const
         static_assert(sizeof(bits) == sizeof(signedBits));
         memcpy(&signedBits, &bits, sizeof(bits));
 
-        return signedBits;
+        return static_cast<float>(signedBits);
     }
     else
     {
-        return bits;
+        return static_cast<float>(bits);
     }
 }
 
