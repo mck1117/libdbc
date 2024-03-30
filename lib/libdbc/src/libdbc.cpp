@@ -41,16 +41,9 @@ void Dbc::Decode(const CanFrame& frame, DecoderFunc onDecoded) const
     if (isSigned)
     {
         auto signBit = bits & (1UL << (length - 1));
-        uint32_t mask = ((~0ULL) >> (length - 1)) << (length - 1);
+        uint32_t mask = signBit ? ~((signBit) - 1) : 0;
 
-        if (signBit != 0)
-        {
-            bits |= mask;
-        }
-        else
-        {
-            bits &= ~bits;
-        }
+        bits |= mask;
 
         int32_t signedBits;
         static_assert(sizeof(bits) == sizeof(signedBits));

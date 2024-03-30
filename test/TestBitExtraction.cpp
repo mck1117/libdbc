@@ -312,6 +312,22 @@ TEST(Decode, Signed_17bits)
     EXPECT_EQ(-44090, libdbc::Dbc::ToFloat(bits, 17, true));
 }
 
+TEST(Decode, Signed_31bits)
+{
+    uint32_t bits = 0x41234567;
+
+    EXPECT_EQ(1092830567, libdbc::Dbc::ToFloat(bits, 31, false));
+    EXPECT_EQ(-1054653081, libdbc::Dbc::ToFloat(bits, 31, true));
+}
+
+TEST(Decode, Signed_32bits)
+{
+    uint32_t bits = 0x81234567;
+
+    EXPECT_EQ(0x81234567, libdbc::Dbc::ToFloat(bits, 32, false));
+    EXPECT_EQ(-2128394905, libdbc::Dbc::ToFloat(bits, 32, true));
+}
+
 TEST(Decode, Gm_Rpm)
 {
     union
