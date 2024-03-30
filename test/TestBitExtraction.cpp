@@ -275,6 +275,43 @@ TEST(Decode, MultiByte_BE)
     EXPECT_EQ(0x244668, libdbc::Dbc::GetSignalBits(data64, libdbc::Endian::Big_Motorola, 2, 24));
 }
 
+TEST(Decode, Signed_4bits)
+{
+    uint32_t bits = 0x0F;
+
+    EXPECT_EQ(15, libdbc::Dbc::ToFloat(bits, 4, false));
+    EXPECT_EQ(-1, libdbc::Dbc::ToFloat(bits, 4, true));
+}
+
+TEST(Decode, Signed_8bits)
+{
+    uint32_t bits = 0xFF;
+
+    EXPECT_EQ(255, libdbc::Dbc::ToFloat(bits, 8, false));
+    EXPECT_EQ(-1, libdbc::Dbc::ToFloat(bits, 8, true));
+}
+
+TEST(Decode, Signed_12bits)
+{
+    uint32_t bits = 0xFFF;
+
+    EXPECT_EQ(4095, libdbc::Dbc::ToFloat(bits, 12, false));
+    EXPECT_EQ(-1, libdbc::Dbc::ToFloat(bits, 12, true));
+
+    bits = 0xB2E;
+
+    EXPECT_EQ(2862, libdbc::Dbc::ToFloat(bits, 12, false));
+    EXPECT_EQ(-1234, libdbc::Dbc::ToFloat(bits, 12, true));
+}
+
+TEST(Decode, Signed_17bits)
+{
+    uint32_t bits = 0x153C6;
+
+    EXPECT_EQ(86982, libdbc::Dbc::ToFloat(bits, 17, false));
+    EXPECT_EQ(-44090, libdbc::Dbc::ToFloat(bits, 17, true));
+}
+
 TEST(Decode, Gm_Rpm)
 {
     union

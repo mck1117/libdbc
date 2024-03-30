@@ -24,18 +24,43 @@ void Dbc::Decode(const CanFrame& frame, DecoderFunc onDecoded) const
     {
         auto bits = GetSignalBits(frame.Data64, signal.Endianness, signal.Bitpos, signal.Length);
 
-        // if signed, sign extend as necessary
-        // if (signal.Signed)
-        // {
-        //     uint64_t signBit = bits & (1ULL << (signal.Length - 1));
-        // }
+        float val = ToFloat(bits, signal.Length, signal.Signed);
 
-        float val = signal.Factor * bits + signal.Offset;
+        val = signal.Factor * val + signal.Offset;
 
         if (onDecoded)
         {
             onDecoded(signal, bits, val);
         }
+    }
+}
+
+/*static*/ float Dbc::ToFloat(uint32_t bits, uint8_t length, bool isSigned)
+{
+    // if signed, sign extend as necessary
+    if (isSigned)
+    {
+        auto signBit = bits & (1UL << (length - 1));
+        uint32_t mask = ((~0ULL) >> (length - 1)) << (length - 1);
+
+        if (signBit != 0)
+        {
+            bits |= mask;
+        }
+        else
+        {
+            bits &= ~bits;
+        }
+
+        int32_t signedBits;
+        static_assert(sizeof(bits) == sizeof(signedBits));
+        memcpy(&signedBits, &bits, sizeof(bits));
+
+        return signedBits;
+    }
+    else
+    {
+        return bits;
     }
 }
 

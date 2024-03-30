@@ -102,6 +102,7 @@ public:
     }
 
     static uint32_t GetSignalBits(uint64_t data, Endian endianness, uint8_t bitpos, uint8_t length);
+    static float ToFloat(uint32_t bits, uint8_t length, bool isSigned);
 
 private:
     const size_t m_signalCount;
