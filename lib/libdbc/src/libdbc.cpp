@@ -45,6 +45,7 @@ void Dbc::Decode(const CanFrame& frame, DecoderFunc onDecoded) const
 
         bits |= mask;
 
+        // compliant way to reinterpret the bits of an unsigned -> signed
         int32_t signedBits;
         static_assert(sizeof(bits) == sizeof(signedBits));
         memcpy(&signedBits, &bits, sizeof(bits));
