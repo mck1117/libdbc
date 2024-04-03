@@ -96,8 +96,9 @@ static ConversionStat doConversion(const libdbc::Dbc* dbc, std::istream& inputFi
     libdbc::impl::FileReader inputReader(inputFile);
     FrameParser parser(inputReader);
 
+    // Mismatch these so we force a write of every field in the first line
     std::vector<float> data(dbc->SignalCount(), 0);
-    std::vector<float> lastData(dbc->SignalCount(), 0);
+    std::vector<float> lastData(dbc->SignalCount(), 1);
 
     while (true)
     {
