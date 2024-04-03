@@ -17,7 +17,7 @@ TEST(Parsing, OneMessage_OneSignal)
 
     const auto& msgs = dbc->Messages();
 
-    EXPECT_EQ(1, msgs.size());
+    ASSERT_EQ(1, msgs.size());
 
     auto findResult = msgs.find(123);
     EXPECT_NE(findResult, msgs.end());
