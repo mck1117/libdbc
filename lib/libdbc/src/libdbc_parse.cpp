@@ -187,9 +187,16 @@ static std::pair<float, float> ParseMinmax(std::string_view str)
                 multiplexSpec.MuxValue
             );
 
+            auto addedIndex = currentMessage->Signals.size() - 1;
+
+            if (multiplexSpec.Mode == MultiplexMode::Multiplexor)
+            {
+                currentMessage->MultiplexorSignalIndex = addedIndex;
+            }
+
             if (onSignal)
             {
-                onSignal(*(currentMessage->Signals.end() - 1));
+                onSignal(currentMessage->Signals[addedIndex]);
             }
         }
         else

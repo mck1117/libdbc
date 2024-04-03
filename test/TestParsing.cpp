@@ -85,6 +85,8 @@ TEST(Parsing, FileWithMultiplex)
         EXPECT_EQ("test unit", signal.Unit);
 
         EXPECT_EQ(signal.MuxMode, libdbc::MultiplexMode::Multiplexor);
+
+        EXPECT_EQ(msg.MultiplexorSignalIndex, 0);
     }
 
     // Check the values

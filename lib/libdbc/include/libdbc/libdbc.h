@@ -64,6 +64,7 @@ struct Message final
     const uint32_t Id;
     const uint8_t Dlc;
     const std::string Name;
+    size_t MultiplexorSignalIndex = -1;
     std::vector<Signal> Signals;
 
     Message(uint32_t id, uint8_t dlc, std::string_view name)
