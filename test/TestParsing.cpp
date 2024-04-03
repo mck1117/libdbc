@@ -16,7 +16,6 @@ TEST(Parsing, OneMessage_OneSignal)
     ASSERT_NE(nullptr, dbc);
 
     const auto& msgs = dbc->Messages();
-
     ASSERT_EQ(1, msgs.size());
 
     auto findResult = msgs.find(123);
@@ -45,4 +44,7 @@ TEST(Parsing, RealVolvoDbc)
 {
     auto dbc = ParseDbcFile("data/VolvoCanBus.dbc");
     ASSERT_NE(nullptr, dbc);
+
+    const auto& msgs = dbc->Messages();
+    ASSERT_EQ(1, msgs.size());
 }
