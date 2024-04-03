@@ -96,10 +96,8 @@ static ConversionStat doConversion(const libdbc::Dbc* dbc, std::istream& inputFi
     libdbc::impl::FileReader inputReader(inputFile);
     FrameParser parser(inputReader);
 
-    std::vector<float> data;
-    data.resize(dbc->SignalCount());
-    std::vector<float> lastData;
-    lastData.resize(dbc->SignalCount());
+    std::vector<float> data(dbc->SignalCount(), 0);
+    std::vector<float> lastData(dbc->SignalCount(), 0);
 
     while (true)
     {
