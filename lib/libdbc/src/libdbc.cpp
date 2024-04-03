@@ -19,9 +19,25 @@ void Dbc::Decode(const CanFrame& frame, DecoderFunc onDecoded) const
 
     const auto& message = search->second;
 
+    uint32_t multiplexValue = 0;
+
+    if (message.MultiplexorSignalIndex != -1)
+    {
+        // First, decode the multiplex value
+        const auto& signal = message.Signals[message.MultiplexorSignalIndex];
+
+        multiplexValue = GetSignalBits(frame.Data64, signal.Endianness, signal.Bitpos, signal.Length);
+    }
+
     // Decode every signal in the message
     for (const auto& signal : message.Signals)
     {
+        if (signal.MuxMode == MultiplexMode::MEquals && signal.MuxVal != multiplexValue)
+        {
+            // We're in mux mode but this signal has the wrong mux value, skip it
+            continue;
+        }
+
         auto bits = GetSignalBits(frame.Data64, signal.Endianness, signal.Bitpos, signal.Length);
 
         float val = ToFloat(bits, signal.Length, signal.Signed);
