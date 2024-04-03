@@ -5,6 +5,28 @@
 using namespace libdbc;
 using namespace libdbc::impl;
 
+struct MultiplexSpec
+{
+    MultiplexMode Mode;
+    size_t MuxValue;
+};
+
+static MultiplexSpec ParseMultiplex(std::string_view str)
+{
+    if (str.empty())
+    {
+        return { MultiplexMode::None, 0 };
+    }
+    else if (str[0] == 'm')
+    {
+        return { MultiplexMode::MEquals, util::from_sv<size_t>(str.substr(1)) };
+    }
+    else
+    {
+        return { MultiplexMode::Multiplexor, 0 };
+    }
+}
+
 struct BitSpec
 {
     Endian Endianness;
@@ -129,7 +151,11 @@ static std::pair<float, float> ParseMinmax(std::string_view str)
             auto nameEnd = line.find(' ', nameStart);
             std::string_view nameString = line.substr(nameStart, nameEnd - nameStart);
 
-            auto bitSpecStart = line.find(" : ") + 3;
+            auto multiplexStart = nameEnd + 1;
+            auto multiplexEnd = line.find(" : ");
+            auto multiplexSpec = ParseMultiplex(multiplexEnd > multiplexStart ? line.substr(multiplexStart, multiplexEnd - multiplexStart) : "");
+
+            auto bitSpecStart = multiplexEnd + 3;
             auto bitSpecEnd = line.find(' ', bitSpecStart);
             auto bitSpec = ParseBitSpec(line.substr(bitSpecStart, bitSpecEnd - bitSpecStart));
 
@@ -156,7 +182,9 @@ static std::pair<float, float> ParseMinmax(std::string_view str)
                 scaleOffset.second,
                 minmax.first,
                 minmax.second,
-                unit
+                unit,
+                multiplexSpec.Mode,
+                multiplexSpec.MuxValue
             );
 
             if (onSignal)

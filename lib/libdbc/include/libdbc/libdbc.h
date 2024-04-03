@@ -17,6 +17,13 @@ enum class Endian : uint8_t
     Big_Motorola = 1
 };
 
+enum class MultiplexMode
+{
+    None,
+    Multiplexor,
+    MEquals,
+};
+
 struct Signal final
 {
     const size_t Id;
@@ -28,11 +35,13 @@ struct Signal final
     const uint8_t Length;
     const float Factor;
     const float Offset;
-    float Min;
-    float Max;
+    const float Min;
+    const float Max;
     const std::string Unit;
+    const MultiplexMode MuxMode;
+    const size_t MuxVal;
 
-    Signal(size_t id, std::string_view name, Endian endian, bool isSigned, uint8_t bitpos, uint8_t length, float factor, float offset, float min, float max, std::string_view unit)
+    Signal(size_t id, std::string_view name, Endian endian, bool isSigned, uint8_t bitpos, uint8_t length, float factor, float offset, float min, float max, std::string_view unit, MultiplexMode muxMode, size_t muxVal)
         : Id(id)
         , Name(name)
         , Endianness(endian)
@@ -44,6 +53,8 @@ struct Signal final
         , Min(min)
         , Max(max)
         , Unit(unit)
+        , MuxMode(muxMode)
+        , MuxVal(muxVal)
     {
     }
 };
