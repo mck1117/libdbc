@@ -128,8 +128,8 @@ BO_ 497 PpeiPlatformGeneralStatus: 8 BCM
 BO_ 493 PpeiFuelSystemRequest: 8 ECM
  SG_ FuelPumpEnabled : 6|1@1+ (1,0) [0|0] "flag"  BCM
  SG_ FuelControlFaultPresent : 7|1@1+ (1,0) [0|0] "flag" Vector__XXX
- SG_ CommandedAirFuelRatio : 47|16@0+ (0.00048828125,0) [0|32] "ratio"  ECM
- SG_ InstantaneousFuelFlow : 15|16@0+ (0.0009765625,0) [0|64] "g/s"  ECM
+ SG_ CommandedAirFuelRatio : 55|16@0+ (0.00048828125,0) [0|32] "ratio"  ECM
+ SG_ InstantaneousFuelFlow : 23|16@0+ (0.0009765625,0) [0|64] "g/s"  ECM
 
 BO_ 2598373676 VolvoPowerSteeringIgnitionOn: 8 BCM
  SG_ EhpasIgnitionRollCount : 8|8@1+ (1,0) [0|0] ""  EHPAS
