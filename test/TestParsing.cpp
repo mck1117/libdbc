@@ -46,5 +46,5 @@ TEST(Parsing, RealVolvoDbc)
     ASSERT_NE(nullptr, dbc);
 
     const auto& msgs = dbc->Messages();
-    ASSERT_EQ(1, msgs.size());
+    ASSERT_EQ(47, msgs.size());
 }
