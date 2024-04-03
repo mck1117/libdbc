@@ -41,6 +41,7 @@ BO_ 1 TestMessage: 3 Vector__XXX
  SG_ SignalMuxA m5 : 8|8@1+ (1,0) [0|0] "" Vector__XXX
  SG_ SignalMuxB m14 : 8|8@1+ (1,0) [0|0] "" Vector__XXX
  SG_ NormalSignal : 16|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ HugeMEquals m9999999 : 0|1@1+ (1,0) [0|0] "" Vector__XXX
 
 
 
