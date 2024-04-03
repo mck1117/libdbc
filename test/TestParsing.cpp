@@ -58,8 +58,7 @@ TEST(Parsing, FileWithMultiplex)
 
     const auto& msgs = dbc->Messages();
     ASSERT_EQ(1, msgs.size());
-
-    ASSERT_EQ(3, dbc->SignalCount());
+    ASSERT_EQ(4, dbc->SignalCount());
 
     auto findResult = msgs.find(456);
     ASSERT_NE(findResult, msgs.end());
@@ -70,7 +69,7 @@ TEST(Parsing, FileWithMultiplex)
     EXPECT_EQ(456, msg.Id);
     EXPECT_EQ("TestMessage", msg.Name);
     EXPECT_EQ(3, msg.Dlc);
-    EXPECT_EQ(3, msg.Signals.size());
+    EXPECT_EQ(4, msg.Signals.size());
 
     {
         // Check the multiplexor
@@ -78,10 +77,10 @@ TEST(Parsing, FileWithMultiplex)
         EXPECT_EQ("SignalMux", signal.Name);
         EXPECT_EQ(0, signal.Bitpos);
         EXPECT_EQ(8, signal.Length);
-        EXPECT_EQ(7, signal.Factor);
-        EXPECT_EQ(8, signal.Offset);
-        EXPECT_EQ(9, signal.Min);
-        EXPECT_EQ(10, signal.Max);
+        EXPECT_EQ(1, signal.Factor);
+        EXPECT_EQ(0, signal.Offset);
+        EXPECT_EQ(0, signal.Min);
+        EXPECT_EQ(0, signal.Max);
         EXPECT_EQ("test unit", signal.Unit);
 
         EXPECT_EQ(signal.MuxMode, libdbc::MultiplexMode::Multiplexor);
@@ -104,5 +103,13 @@ TEST(Parsing, FileWithMultiplex)
 
         EXPECT_EQ(signal.MuxMode, libdbc::MultiplexMode::MEquals);
         EXPECT_EQ(signal.MuxVal, 9999999);
+    }
+
+    {
+        const auto& signal = msg.Signals[3];
+        EXPECT_EQ("SignalMuxB", signal.Name);
+
+        EXPECT_EQ(signal.MuxMode, libdbc::MultiplexMode::MEquals);
+        EXPECT_EQ(signal.MuxVal, 10);
     }
 }

@@ -39,7 +39,7 @@ BU_:
 BO_ 456 TestMessage: 3 Vector__XXX
  SG_ SignalMux M : 0|8@1+ (1,0) [0|0] "test unit" Vector__XXX
  SG_ SignalMuxA m5 : 8|8@1+ (1,0) [0|0] "" Vector__XXX
- SG_ HugeMEquals m99999991 : 16|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ HugeMEquals m9999999 : 16|8@1+ (1,0) [0|0] "" Vector__XXX
  SG_ SignalMuxB m10 : 16|8@1+ (1,0) [0|0] "" Vector__XXX
 
 
