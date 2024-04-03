@@ -146,7 +146,7 @@ BO_ 496 Mk60_WheelSpeeds: 8 ABS
  SG_ Mk60RearLeft : 32|12@1+ (0.03125,-0.5) [0|0] "km/h" Vector__XXX
  SG_ Mk60RearRight : 48|12@1+ (0.03125,-0.5) [0|0] "km/h" Vector__XXX
 
-BO_ 339 Mk60Asc1: 8 ABS
+BO_ 339 Mk60_ASC1: 8 ABS
  SG_ Mk60BrakeSwitch : 4|1@1+ (1,0) [0|0] "flag"  BCM
  SG_ Mk60AscTorqueReduction : 24|8@1+ (0.390625,0) [0|100] "%"  BCM
  SG_ Mk60AscTorqueIncrease : 32|8@1+ (0.390625,0) [0|100] "%"  BCM
@@ -157,7 +157,7 @@ BO_ 809 Mk60_DME2: 8 BCM
 BO_ 1552 Mk60_ICL1: 8 BCM
  SG_ Mk60Wakeup2 : 0|64@1+ (1,0) [0|0] ""  ABS
 
-BO_ 1792 SteerWheelControls: 4 SteeringWheel
+BO_ 1857 SteerWheelControls: 3 SteeringWheel
  SG_ SwcButtonLeft1 : 0|1@1+ (1,0) [0|0] ""  BCM
  SG_ SwcButtonLeft2 : 1|1@1+ (1,0) [0|0] ""  BCM
  SG_ SwcButtonLeft3 : 2|1@1+ (1,0) [0|0] ""  BCM
@@ -168,8 +168,8 @@ BO_ 1792 SteerWheelControls: 4 SteeringWheel
  SG_ SwcButtonRight3 : 10|1@1+ (1,0) [0|0] ""  BCM
  SG_ SwcButtonRight4 : 11|1@1+ (1,0) [0|0] ""  BCM
  SG_ SwcButtonRight5 : 12|1@1+ (1,0) [0|0] ""  BCM
- SG_ SwcKnobLeft : 16|8@1+ (1,0) [0|0] ""  BCM
- SG_ SwcKnobRight : 24|8@1+ (1,0) [0|0] ""  BCM
+ SG_ SwcKnobLeft : 16|4@1+ (1,0) [0|0] ""  BCM
+ SG_ SwcKnobRight : 20|4@1+ (1,0) [0|0] ""  BCM
 
 BO_ 249 PpeiTransmissionGeneralStatus1: 8 ECM
 
@@ -189,12 +189,20 @@ BO_ 1906 DiagnosticTroubleCodeInfo: 8 ECM
  SG_ DtcNumber : 16|16@1+ (1,0) [0|0] "" Vector__XXX
  SG_ DtcFailureType : 32|8@1+ (1,0) [0|0] "" Vector__XXX
 
-BO_ 1856 PMU_Status1: 5 PMU
+BO_ 1856 PMU_Status1: 7 PMU
  SG_ PmuBatteryVoltage : 0|8@1+ (0.1,0) [0|25.5] "V" Vector__XXX
  SG_ PmuTotalCurrent : 8|8@1+ (1,0) [0|255] "A" Vector__XXX
  SG_ PmuTempLeft : 16|8@1+ (1,0) [0|150] "C" Vector__XXX
  SG_ PmuTempRight : 24|8@1+ (1,0) [0|150] "C" Vector__XXX
  SG_ PmuFuelLiftPumpCurrent : 32|8@1+ (0.1,0) [0|25.5] "A" Vector__XXX
+ SG_ AbsFaultActive : 40|1@1+ (1,0) [0|1] "flag" Vector__XXX
+ SG_ FuelLiftPumpDry : 41|1@1+ (1,0) [0|1] "flag" Vector__XXX
+ SG_ HeadlightsActive : 42|1@1+ (1,0) [0|1] "flag" Vector__XXX
+ SG_ WipersActive : 43|1@1+ (1,0) [0|1] "flag" Vector__XXX
+ SG_ PmuIgnState : 44|1@1+ (1,0) [0|1] "flag" Vector__XXX
+ SG_ PmuInterestingThingButton : 45|1@1+ (1,0) [0|1] "flag" Vector__XXX
+ SG_ PmuFanSpeed : 48|8@1+ (1,0) [0|100] "%" Vector__XXX
+ SG_ PmuRadioPtt : 46|1@1+ (1,0) [0|0] "flag" Vector__XXX
 
 BO_ 1009 PpeiPlatformEngineCntrlRequests: 8 BCM
  SG_ GeneratorRegulatorDutyRequest : 15|8@0+ (0.392156863,0) [0|0] "%" Vector__XXX
@@ -204,12 +212,60 @@ BO_ 100 RacecaptureGpsPos: 8 Racecapture
  SG_ RC_Latitude : 0|32@1- (1e-07,0) [-90|90] "deg" Vector__XXX
  SG_ RC_Longitude : 32|32@1- (1e-07,0) [-180|180] "deg" Vector__XXX
 
-BO_ 101 RacecaptureGpsData: 5 Racecapture
+BO_ 101 RacecaptureGpsData: 7 Racecapture
  SG_ RC_Gx : 0|8@1- (0.02,0) [0|0] "" Vector__XXX
  SG_ RC_Gy : 8|8@1- (0.02,0) [0|0] "" Vector__XXX
  SG_ RC_Gz : 16|8@1- (0.02,0) [0|0] "" Vector__XXX
  SG_ RC_Rz : 24|8@1- (0.02,0) [0|0] "" Vector__XXX
  SG_ RC_Speed : 32|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RC_GpsQual : 40|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ RC_GpsSats : 48|8@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 1858 SteerWheelLeds: 2 PMU
+ SG_ SwcLedLeft1 : 0|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SwcLedLeft2 : 1|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SwcLedLeft3 : 2|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SwcLedLeft4 : 3|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SwcLedLeft5 : 4|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SwcLedRight1 : 8|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SwcLedRight2 : 9|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SwcLedRight3 : 10|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SwcLedRight4 : 11|1@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ SwcLedRight5 : 12|1@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 499 Mk60_ASC3: 8 ABS
+
+BO_ 102 Unknown_x066: 2 Vector__XXX
+
+BO_ 190 GMLAN_PossibleAccelPos: 8 ECM
+
+BO_ 419 GMLAN_Unknown1: 1 ECM
+
+BO_ 426 GMLAN_Unknown2: 8 ECM
+
+BO_ 479 GMLAN_Unknown3: 3 ECM
+
+BO_ 487 GMLAN_Unknown4: 8 ECM
+
+BO_ 500 GMLAN_Unknown5: 6 ECM
+
+BO_ 647 GMLAN_Unknown6: 4 ECM
+
+BO_ 723 GMLAN_Unknown7: 2 ECM
+
+BO_ 985 GMLAN_Unknown8: 5 ECM
+
+BO_ 2015 OBD2_Req: 8 Vector__XXX
+ SG_ OBD2_Req_DataBytes : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ OBD2_ReqService : 8|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ OBD2_PID : 16|8@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 2024 OBD2_Resp: 8 ECM
+ SG_ OBD2_Resp_DataBytes : 0|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ OBD2_Resp_Service : 8|8@1+ (1,-64) [0|0] "" Vector__XXX
+ SG_ OBD2_Resp_Pid M : 16|8@1+ (1,0) [0|0] "" Vector__XXX
+ SG_ OBD2_STFT1 m6 : 24|8@1+ (0.78125,-100) [0|0] "" Vector__XXX
+ SG_ OBD2_STFT2 m8 : 24|8@1+ (0.78125,-100) [0|0] "" Vector__XXX
 
 
 
@@ -234,9 +290,11 @@ CM_ BO_ 493 "80hz";
 CM_ BO_ 2598373676 "Send at ~2hz";
 CM_ BO_ 2182103350 "Send at ~70hz";
 CM_ SG_ 2182103350 EhpasVehicleSpeed "factor is a guess";
+CM_ BO_ 496 "140hz";
+CM_ BO_ 339 "140hz";
 CM_ BO_ 809 "1hz";
 CM_ BO_ 1552 "1hz";
-CM_ BO_ 1792 "10hz";
+CM_ BO_ 1857 "20hz";
 CM_ BO_ 249 "80hz";
 CM_ BO_ 417 "40hz";
 CM_ BO_ 452 "40hz";
@@ -248,6 +306,16 @@ CM_ BO_ 1856 "10hz";
 CM_ BO_ 1009 "4hz";
 CM_ BO_ 100 "25hz";
 CM_ BO_ 101 "25hz";
+CM_ BO_ 1858 "20hz";
+CM_ BO_ 499 "140hz";
+CM_ BO_ 419 "40hz";
+CM_ BO_ 426 "40hz";
+CM_ BO_ 479 "40hz";
+CM_ BO_ 487 "80hz";
+CM_ BO_ 500 "40hz";
+CM_ BO_ 647 "40hz";
+CM_ BO_ 723 "20hz";
+CM_ BO_ 985 "10hz";
 VAL_ 977 ThrottleProgressionStatus 0 "MapA" 1 "MapB" 2 "MapC" 3 "EcmSelected" ;
 VAL_ 977 MalfunctionIndicationRequest 0 "ContinuousIndication" 1 "NoIndication" 2 "Flashing1hz" 3 "Flashing2hz" 4 "Flashing0_5hz" ;
 VAL_ 1019 EngineFuelControlState 0 "OpenLoop" 1 "NonStoichClosedLoop" 2 "StoichClosedLoop" ;
