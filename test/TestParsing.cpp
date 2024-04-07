@@ -45,4 +45,7 @@ TEST(Parsing, RealVolvoDbc)
 {
     auto dbc = ParseDbcFile("data/VolvoCanBus.dbc");
     ASSERT_NE(nullptr, dbc);
+
+    EXPECT_EQ(dbc->Messages().size(), 50);
+    EXPECT_EQ(dbc->SignalCount(), 180);
 }
