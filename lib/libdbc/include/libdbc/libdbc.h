@@ -58,6 +58,10 @@ struct Signal final
     // Set by a SIG_VALTYPE_ line, which comes after the signal's definition
     ValueType Type = ValueType::Integer;
 
+    // Names for particular raw values, from VAL_ lines. Keyed by the signal's raw bits, so a
+    // signed value like -1 is stored as all ones in the signal's length.
+    std::unordered_map<uint64_t, std::string> ValueNames;
+
     Signal(size_t id, std::string_view name, Endian endian, bool isSigned, uint16_t bitpos, uint8_t length, float factor, float offset, float min, float max, std::string_view unit, MuxRole mux, uint32_t muxValue)
         : Id(id)
         , Name(name)
@@ -73,6 +77,13 @@ struct Signal final
         , Mux(mux)
         , MuxValue(muxValue)
     {
+    }
+
+    // Name for a raw value (as passed to the decoder callback), or nullptr if it has none
+    const std::string* ValueName(uint64_t bits) const
+    {
+        auto search = ValueNames.find(bits);
+        return search == ValueNames.end() ? nullptr : &search->second;
     }
 };
 

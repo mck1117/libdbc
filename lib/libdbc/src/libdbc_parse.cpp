@@ -4,6 +4,7 @@
 #include <cctype>
 #include <charconv>
 #include <iterator>
+#include <optional>
 #include <string>
 
 using namespace libdbc;
@@ -223,6 +224,10 @@ public:
             else if (token.Is(TokenType::Word, "SIG_VALTYPE_"))
             {
                 ParseValueType();
+            }
+            else if (token.Is(TokenType::Word, "VAL_"))
+            {
+                ParseValueDescriptions();
             }
             else
             {
@@ -548,17 +553,9 @@ private:
             return;
         }
 
-        auto message = m_messages.find(rawId);
-        if (message == m_messages.end())
-        {
-            Fail();
-            return;
-        }
+        Signal* signal = FindSignal(rawId, name);
 
-        auto& signals = message->second.Signals;
-        auto signal = std::find_if(signals.begin(), signals.end(), [&](const Signal& s) { return s.Name == name; });
-
-        if (signal == signals.end())
+        if (!signal)
         {
             Fail();
             return;
@@ -580,6 +577,122 @@ private:
         {
             Fail();
         }
+    }
+
+    // VAL_ <message id> <signal name> { <raw value> "<name>" } ;
+    // or VAL_ <environment variable> ... ; which we skip
+    void ParseValueDescriptions()
+    {
+        m_tokens.Next();
+
+        uint32_t rawId;
+        if (m_tokens.Peek().Type != TokenType::Word || !ParseNumber(m_tokens.Peek().Text, rawId))
+        {
+            SkipStatement();
+            return;
+        }
+
+        m_tokens.Next();
+        std::string_view name = Expect(TokenType::Word).Text;
+
+        // Look up the signal first, since its length is needed to interpret the values
+        Signal* signal = nullptr;
+        if (!m_error && rawId != IndependentSignalsMessageId)
+        {
+            signal = FindSignal(rawId, name);
+
+            if (!signal)
+            {
+                Fail();
+                return;
+            }
+        }
+
+        std::unordered_map<uint64_t, std::string> names;
+
+        while (!m_error)
+        {
+            // Long lists may be wrapped over several lines
+            while (m_tokens.Peek().Type == TokenType::Newline)
+            {
+                m_tokens.Next();
+            }
+
+            if (m_tokens.Peek().Is(TokenType::Punct, ";"))
+            {
+                m_tokens.Next();
+                break;
+            }
+
+            std::string_view valueText = Expect(TokenType::Word).Text;
+            std::string_view description = Expect(TokenType::String).Text;
+
+            std::optional<uint64_t> bits;
+            if (!m_error && signal && !RawBitsFor(valueText, signal->Length, bits))
+            {
+                Fail();
+            }
+
+            // Values that don't fit in the signal can never match, so drop them
+            if (!m_error && bits)
+            {
+                names.insert_or_assign(*bits, Unescape(description));
+            }
+        }
+
+        if (!m_error && signal)
+        {
+            signal->ValueNames = std::move(names);
+        }
+    }
+
+    // Parses a VAL_ value, which may be written signed (-1) or unsigned (255), as raw bits in a
+    // signal of the given length. Returns false if it isn't an integer, sets bits only if it fits.
+    static bool RawBitsFor(std::string_view text, uint8_t length, std::optional<uint64_t>& bits)
+    {
+        uint64_t mask = (length == 64) ? ~0ULL : ((1ULL << length) - 1);
+
+        int64_t value;
+        uint64_t unsignedValue;
+
+        if (ParseNumber(text, value))
+        {
+            bool fits = (length == 64) ||
+                (value >= 0 ? static_cast<uint64_t>(value) <= mask : value >= -(1LL << (length - 1)));
+
+            if (fits)
+            {
+                bits = static_cast<uint64_t>(value) & mask;
+            }
+
+            return true;
+        }
+        else if (ParseNumber(text, unsignedValue))
+        {
+            // Too big for int64_t, only fits a 64 bit signal
+            if (length == 64)
+            {
+                bits = unsignedValue;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    Signal* FindSignal(uint32_t rawId, std::string_view name)
+    {
+        auto message = m_messages.find(rawId);
+        if (message == m_messages.end())
+        {
+            return nullptr;
+        }
+
+        auto& signals = message->second.Signals;
+        auto signal = std::find_if(signals.begin(), signals.end(), [&](const Signal& s) { return s.Name == name; });
+
+        return signal == signals.end() ? nullptr : &*signal;
     }
 
     // Checks that can only be made once the whole file is parsed

@@ -2,6 +2,7 @@
 
 #include <libdbc/libdbc.h>
 
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 
@@ -524,4 +525,141 @@ TEST(Parsing, OnSignalNotCalledOnFailure)
 
     EXPECT_EQ(nullptr, dbc);
     EXPECT_FALSE(called);
+}
+
+TEST(Parsing, ValueDescriptions)
+{
+    auto dbc = ParseDbcString(
+        "BO_ 100 M: 8 ECM\n"
+        " SG_ State : 0|2@1+ (1,0) [0|3] \"\" X\n"
+        " SG_ Other : 8|8@1+ (1,0) [0|0] \"\" X\n"
+        "VAL_ 100 State 0 \"Off\" 1 \"On\" 3 \"a \\\"quoted\\\" name\" ;\n");
+    ASSERT_NE(nullptr, dbc);
+
+    const auto& state = dbc->Messages().at(100).Signals[0];
+    EXPECT_EQ(3, state.ValueNames.size());
+    ASSERT_NE(nullptr, state.ValueName(0));
+    EXPECT_EQ("Off", *state.ValueName(0));
+    EXPECT_EQ("On", *state.ValueName(1));
+    EXPECT_EQ(nullptr, state.ValueName(2));
+    EXPECT_EQ("a \"quoted\" name", *state.ValueName(3));
+
+    EXPECT_TRUE(dbc->Messages().at(100).Signals[1].ValueNames.empty());
+}
+
+TEST(Parsing, ValueDescriptions_Signed)
+{
+    // Tools disagree on whether a signed signal's values are written signed or unsigned: accept both
+    auto dbc = ParseDbcString(
+        "BO_ 100 M: 8 ECM\n"
+        " SG_ Speed : 0|16@1- (0.1,0) [0|0] \"km/h\" X\n"
+        " SG_ Small : 16|4@1- (1,0) [0|0] \"\" X\n"
+        "VAL_ 100 Speed -32768 \"Invalid\" -1 \"Error\" ;\n"
+        "VAL_ 100 Small 8 \"Unsigned form\" -2 \"Signed form\" ;\n");
+    ASSERT_NE(nullptr, dbc);
+
+    const auto& speed = dbc->Messages().at(100).Signals[0];
+    EXPECT_EQ("Invalid", *speed.ValueName(0x8000));
+    EXPECT_EQ("Error", *speed.ValueName(0xFFFF));
+
+    const auto& small = dbc->Messages().at(100).Signals[1];
+    EXPECT_EQ("Unsigned form", *small.ValueName(0x8));
+    EXPECT_EQ("Signed form", *small.ValueName(0xE));
+}
+
+TEST(Parsing, ValueDescriptions_OutOfRangeDropped)
+{
+    auto dbc = ParseDbcString(
+        "BO_ 100 M: 8 ECM\n"
+        " SG_ U : 0|4@1+ (1,0) [0|0] \"\" X\n"
+        " SG_ S : 8|4@1- (1,0) [0|0] \"\" X\n"
+        "VAL_ 100 U 15 \"Max\" 16 \"Too big\" ;\n"
+        "VAL_ 100 S -8 \"Min\" -9 \"Too small\" ;\n");
+    ASSERT_NE(nullptr, dbc);
+
+    const auto& u = dbc->Messages().at(100).Signals[0];
+    EXPECT_EQ(1, u.ValueNames.size());
+    EXPECT_EQ("Max", *u.ValueName(15));
+
+    const auto& s = dbc->Messages().at(100).Signals[1];
+    EXPECT_EQ(1, s.ValueNames.size());
+    EXPECT_EQ("Min", *s.ValueName(8));
+}
+
+TEST(Parsing, ValueDescriptions_SixtyFourBit)
+{
+    auto dbc = ParseDbcString(
+        "BO_ 100 M: 8 ECM\n"
+        " SG_ Big : 0|64@1+ (1,0) [0|0] \"\" X\n"
+        "VAL_ 100 Big 18446744073709551615 \"All ones\" -2 \"Signed\" 0 \"Zero\" ;\n");
+    ASSERT_NE(nullptr, dbc);
+
+    const auto& big = OnlySignal(dbc);
+    EXPECT_EQ("All ones", *big.ValueName(~0ULL));
+    EXPECT_EQ("Signed", *big.ValueName(~1ULL));
+    EXPECT_EQ("Zero", *big.ValueName(0));
+}
+
+TEST(Parsing, ValueDescriptions_Wrapped)
+{
+    auto dbc = ParseDbcString(
+        "BO_ 100 M: 8 ECM\n"
+        " SG_ T : 0|8@1+ (1,0) [0|0] \"\" X\n"
+        "VAL_ 100 T 0 \"Zero\"\n"
+        "  1 \"One\"\n"
+        "  2 \"Two\" ;\n");
+    ASSERT_NE(nullptr, dbc);
+    EXPECT_EQ(3, OnlySignal(dbc).ValueNames.size());
+}
+
+TEST(Parsing, ValueDescriptions_Empty)
+{
+    auto dbc = ParseDbcString("BO_ 100 M: 8 ECM\n SG_ T : 0|8@1+ (1,0) [0|0] \"\" X\nVAL_ 100 T ;\n");
+    ASSERT_NE(nullptr, dbc);
+    EXPECT_TRUE(OnlySignal(dbc).ValueNames.empty());
+}
+
+TEST(Parsing, ValueDescriptions_Skipped)
+{
+    auto dbc = ParseDbcString(
+        "BO_ 100 M: 8 ECM\n"
+        " SG_ T : 0|8@1+ (1,0) [0|0] \"\" X\n"
+        "BO_ 3221225472 VECTOR__INDEPENDENT_SIG_MSG: 0 Vector__XXX\n"
+        " SG_ Orphan : 0|8@1+ (1,0) [0|0] \"\" X\n"
+        // Environment variable
+        "VAL_ SomeEnvVar 0 \"Off\" 1 \"On\" ;\n"
+        // Signal in the independent signals message
+        "VAL_ 3221225472 Orphan 0 \"Off\" ;\n"
+        // Value tables are only definitions
+        "VAL_TABLE_ OnOff 1 \"On\" 0 \"Off\" ;\n");
+    ASSERT_NE(nullptr, dbc);
+    EXPECT_TRUE(OnlySignal(dbc).ValueNames.empty());
+}
+
+TEST(Parsing, BadValueDescriptions)
+{
+    const std::string msg = "BO_ 100 M: 8 ECM\n SG_ T : 0|8@1+ (1,0) [0|0] \"\" X\n";
+
+    // Unknown message or signal
+    EXPECT_EQ(nullptr, ParseDbcString(msg + "VAL_ 101 T 0 \"Off\" ;\n"));
+    EXPECT_EQ(nullptr, ParseDbcString(msg + "VAL_ 100 U 0 \"Off\" ;\n"));
+    // Not an integer
+    EXPECT_EQ(nullptr, ParseDbcString(msg + "VAL_ 100 T 1.5 \"Off\" ;\n"));
+    EXPECT_EQ(nullptr, ParseDbcString(msg + "VAL_ 100 T x \"Off\" ;\n"));
+    // Missing description
+    EXPECT_EQ(nullptr, ParseDbcString(msg + "VAL_ 100 T 0 1 \"On\" ;\n"));
+    // Missing semicolon
+    EXPECT_EQ(nullptr, ParseDbcString(msg + "VAL_ 100 T 0 \"Off\"\n"));
+}
+
+TEST(Parsing, RealDbcValueDescriptions)
+{
+    auto dbc = ParseDbcFile("MK60e5_CAN.dbc");
+    ASSERT_NE(nullptr, dbc);
+
+    const auto& signals = dbc->FindMessage(206, false)->Signals;
+    auto fl = std::find_if(signals.begin(), signals.end(), [](const libdbc::Signal& s) { return s.Name == "WheelSpeedFL"; });
+    ASSERT_NE(fl, signals.end());
+    ASSERT_NE(nullptr, fl->ValueName(0x8000));
+    EXPECT_EQ("Invalid", *fl->ValueName(0x8000));
 }

@@ -249,3 +249,24 @@ TEST(Decode, CanFd)
     EXPECT_EQ(1, values.size());
     EXPECT_EQ(1, values.count("Low"));
 }
+
+TEST(Decode, ValueNames)
+{
+    auto dbc = ParseDbcFile("MK60e5_CAN.dbc");
+    ASSERT_NE(nullptr, dbc);
+
+    // WheelSpeeds with every wheel reporting 0x8000 = -32768, "Invalid", except FL = 0x0100
+    libdbc::CanFrame f{ 206, false, 8, { 0x00, 0x01, 0x00, 0x80, 0x00, 0x80, 0x00, 0x80 } };
+
+    std::map<std::string, std::string> names;
+    dbc->Decode(f, [&](const libdbc::Signal& s, uint64_t bits, float)
+    {
+        const std::string* name = s.ValueName(bits);
+        names[s.Name] = name ? *name : "";
+    });
+
+    EXPECT_EQ("", names["WheelSpeedFL"]);
+    EXPECT_EQ("Invalid", names["WheelSpeedFR"]);
+    EXPECT_EQ("Invalid", names["WheelSpeedRL"]);
+    EXPECT_EQ("Invalid", names["WheelSpeedRR"]);
+}

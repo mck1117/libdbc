@@ -59,8 +59,12 @@ struct Row
     // Decimal places needed to show every value this signal can take
     int Decimals;
 
+    // Widest VAL_ name this signal has, so the value column doesn't change width as values do
+    size_t ValueNameWidth = 0;
+
     bool Seen = false;
     float Value = 0;
+    uint64_t Raw = 0;
     Clock::time_point LastUpdate{};
     Clock::time_point LastChange{};
 };
@@ -258,6 +262,11 @@ public:
                 {
                     int decimals = std::max(DecimalsForFactor(signal.Factor), DecimalsFor(signal.Offset));
                     m_rows.push_back({ &signal, message.Name + "." + signal.Name, i, decimals });
+
+                    for (const auto& [bits, name] : signal.ValueNames)
+                    {
+                        m_rows.back().ValueNameWidth = std::max(m_rows.back().ValueNameWidth, Width(name));
+                    }
                 }
             }
         }
@@ -362,7 +371,7 @@ private:
 
                 known = true;
 
-                m_dbcs[i]->Decode(frame, [&](const libdbc::Signal& signal, uint64_t, float value)
+                m_dbcs[i]->Decode(frame, [&](const libdbc::Signal& signal, uint64_t bits, float value)
                 {
                     Row& row = m_rows[m_rowIndex[i][signal.Id]];
 
@@ -373,6 +382,7 @@ private:
 
                     row.Seen = true;
                     row.Value = value;
+                    row.Raw = bits;
                     row.LastUpdate = now;
                 });
             }
@@ -480,7 +490,7 @@ private:
         const size_t cols = m_terminal.Cols();
 
         std::vector<const Row*> visible;
-        size_t nameW = 6, unitW = 4;
+        size_t nameW = 6, unitW = 4, valueW = 14;
 
         for (const auto& row : m_rows)
         {
@@ -497,11 +507,13 @@ private:
             visible.push_back(&row);
             nameW = std::max(nameW, Width(row.FullName));
             unitW = std::max(unitW, Width(row.Signal->Unit));
+            valueW = std::max(valueW, row.ValueNameWidth);
         }
 
         // Column layout: shrink the name column to fit the terminal
-        constexpr size_t valueW = 14, ageW = 6, gap = 2;
+        constexpr size_t ageW = 6, gap = 2;
         nameW = std::min<size_t>(nameW, 64);
+        valueW = std::min<size_t>(valueW, 24);
         unitW = std::min<size_t>(unitW, 10);
 
         auto total = [&] { return 1 + nameW + gap + valueW + 1 + unitW + gap + ageW; };
@@ -591,20 +603,32 @@ private:
                 AppendFitKeepEnd(out, row.FullName, nameW);
                 out.append(gap, ' ');
 
+                // Values with a VAL_ name show the name instead, in cyan, without a unit
+                const std::string* valueName = row.Seen ? row.Signal->ValueName(row.Raw) : nullptr;
+
                 if (changed)
                 {
                     out += "\x1b[1;32m";
                 }
+                else if (valueName)
+                {
+                    out += "\x1b[36m";
+                }
 
-                AppendFit(out, row.Seen ? FormatValue(row) : "-", valueW, true);
+                AppendFit(out, valueName ? *valueName : row.Seen ? FormatValue(row) : "-", valueW, true);
 
                 if (changed)
                 {
+                    // Changed values are never stale, so this can't cancel the row's dimming
                     out += "\x1b[22;39m";
+                }
+                else if (valueName)
+                {
+                    out += "\x1b[39m";
                 }
 
                 out += ' ';
-                AppendFit(out, row.Signal->Unit, unitW);
+                AppendFit(out, valueName ? "" : row.Signal->Unit, unitW);
                 out.append(gap, ' ');
                 AppendFit(out, row.Seen ? FormatAge(now - row.LastUpdate) : "", ageW, true);
                 padTo(total());
