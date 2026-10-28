@@ -1,32 +1,77 @@
 #include <libdbc/libdbc.h>
 
+#include <algorithm>
 #include <bit>
-#include <cstring>
+#include <cctype>
+#include <optional>
 
 using namespace libdbc;
 using namespace libdbc::impl;
 
 void Dbc::Decode(const CanFrame& frame, DecoderFunc onDecoded) const
 {
-    auto search = m_messages.find(frame.Id);
+    const Message* message = FindMessage(frame.Id, frame.Extended);
 
     // Do we know how to decode this frame?
-    if (search == m_messages.end())
+    if (!message)
     {
         // If not, bail out early
         return;
     }
 
-    const auto& message = search->second;
+    // Only the bytes the frame actually carried are valid
+    std::span<const uint8_t> data(frame.Data, std::min<size_t>(frame.Dlc, std::size(frame.Data)));
+
+    auto fits = [&](const Signal& signal)
+    {
+        return BytesRequired(signal.Endianness, signal.Bitpos, signal.Length) <= data.size();
+    };
+
+    // If the message is multiplexed, find which multiplexed signals are present
+    std::optional<uint64_t> muxValue;
+    for (const auto& signal : message->Signals)
+    {
+        if (signal.Mux == MuxRole::Multiplexor)
+        {
+            if (fits(signal))
+            {
+                muxValue = GetSignalBits(data, signal.Endianness, signal.Bitpos, signal.Length);
+            }
+
+            break;
+        }
+    }
 
     // Decode every signal in the message
-    for (const auto& signal : message.Signals)
+    for (const auto& signal : message->Signals)
     {
-        auto bits = GetSignalBits(frame.Data64, signal.Endianness, signal.Bitpos, signal.Length);
+        if (!fits(signal))
+        {
+            // Frame is too short to contain this signal
+            continue;
+        }
 
-        float val = ToFloat(bits, signal.Length, signal.Signed);
+        if (signal.Mux == MuxRole::Multiplexed && muxValue != signal.MuxValue)
+        {
+            continue;
+        }
 
-        val = signal.Factor * val + signal.Offset;
+        auto bits = GetSignalBits(data, signal.Endianness, signal.Bitpos, signal.Length);
+
+        float val;
+
+        switch (signal.Type)
+        {
+        case ValueType::Float32:
+            val = signal.Factor * std::bit_cast<float>(static_cast<uint32_t>(bits)) + signal.Offset;
+            break;
+        case ValueType::Float64:
+            val = static_cast<float>(signal.Factor * std::bit_cast<double>(bits) + signal.Offset);
+            break;
+        default:
+            val = signal.Factor * ToFloat(bits, signal.Length, signal.Signed) + signal.Offset;
+            break;
+        }
 
         if (onDecoded)
         {
@@ -35,22 +80,25 @@ void Dbc::Decode(const CanFrame& frame, DecoderFunc onDecoded) const
     }
 }
 
-/*static*/ float Dbc::ToFloat(uint32_t bits, uint8_t length, bool isSigned)
+const Message* Dbc::FindMessage(uint32_t id, bool extended) const
+{
+    uint32_t key = extended ? ((id & 0x1FFFFFFF) | ExtendedIdFlag) : id;
+
+    auto search = m_messages.find(key);
+    return search == m_messages.end() ? nullptr : &search->second;
+}
+
+/*static*/ float Dbc::ToFloat(uint64_t bits, uint8_t length, bool isSigned)
 {
     // if signed, sign extend as necessary
     if (isSigned)
     {
-        auto signBit = bits & (1UL << (length - 1));
-        uint32_t mask = signBit ? ~((signBit) - 1) : 0;
+        auto signBit = bits & (1ULL << (length - 1));
+        uint64_t mask = signBit ? ~((signBit) - 1) : 0;
 
         bits |= mask;
 
-        // compliant way to reinterpret the bits of an unsigned -> signed
-        int32_t signedBits;
-        static_assert(sizeof(bits) == sizeof(signedBits));
-        memcpy(&signedBits, &bits, sizeof(bits));
-
-        return static_cast<float>(signedBits);
+        return static_cast<float>(std::bit_cast<int64_t>(bits));
     }
     else
     {
@@ -58,36 +106,66 @@ void Dbc::Decode(const CanFrame& frame, DecoderFunc onDecoded) const
     }
 }
 
-static uint64_t swap_uint64_t(uint64_t x) {
-    x = (x & 0x00000000FFFFFFFF) << 32 | (x & 0xFFFFFFFF00000000) >> 32;
-    x = (x & 0x0000FFFF0000FFFF) << 16 | (x & 0xFFFF0000FFFF0000) >> 16;
-    x = (x & 0x00FF00FF00FF00FF) << 8  | (x & 0xFF00FF00FF00FF00) >> 8;
-    return x;
+// Motorola signals are specified by their MSB, numbered "sawtooth" style: bit 7 of byte 0 is
+// the first bit in the frame, followed by bits 6..0, then bit 15 (bit 7 of byte 1), etc.
+// XOR with 7 flips the bit-within-byte, giving a linear index counted from the start of the frame.
+static size_t MotorolaLinearIndex(size_t bitpos)
+{
+    return bitpos ^ 7;
 }
 
-// https://github.com/collin80/SavvyCAN/blob/77f889e4d765d82242f200f4c1187f99a67eff9e/dbc/dbc_classes.cpp#L97
-
-/*static*/ uint32_t Dbc::GetSignalBits(uint64_t data, Endian endianness, uint8_t bitpos, uint8_t length)
+/*static*/ size_t Dbc::BytesRequired(Endian endianness, uint16_t bitpos, uint8_t length)
 {
-    uint64_t mask = (1ULL << length) - 1;
-
-    uint8_t shift;
-
     if (endianness == Endian::Little_Intel)
     {
-        // Little endian is easy, just shift by bitpos
-        shift = bitpos;
+        return (bitpos + length + 7) / 8;
     }
     else
     {
-        data = swap_uint64_t(data);
+        size_t lsb = MotorolaLinearIndex(bitpos) + length - 1;
+        return lsb / 8 + 1;
+    }
+}
 
-        // I don't love this, but it works!?
-        const int8_t shiftCorrection[8] = { -7, -5, -3, -1, 1, 3, 5, 7 };
-        shift = 64 - bitpos - length + shiftCorrection[bitpos % 8];
+/*static*/ uint64_t Dbc::GetSignalBits(std::span<const uint8_t> data, Endian endianness, uint16_t bitpos, uint8_t length)
+{
+    // Walk from the signal's LSB towards its MSB, a byte at a time. Within a byte, significance
+    // increases with bit number for both endians; they differ in which way the next byte is.
+    int byte;
+    int bit;
+    int byteStep;
+
+    if (endianness == Endian::Little_Intel)
+    {
+        // bitpos is the LSB, more significant bits are in later bytes
+        byte = bitpos / 8;
+        bit = bitpos % 8;
+        byteStep = 1;
+    }
+    else
+    {
+        // bitpos is the MSB, more significant bits are in earlier bytes
+        size_t lsb = MotorolaLinearIndex(MotorolaLinearIndex(bitpos) + length - 1);
+        byte = lsb / 8;
+        bit = lsb % 8;
+        byteStep = -1;
     }
 
-    return static_cast<uint32_t>((data >> shift) & mask);
+    uint64_t result = 0;
+
+    for (int got = 0; got < length; )
+    {
+        int take = std::min(8 - bit, length - got);
+        uint64_t chunk = (data[byte] >> bit) & ((1u << take) - 1);
+
+        result |= chunk << got;
+
+        got += take;
+        byte += byteStep;
+        bit = 0;
+    }
+
+    return result;
 }
 
 namespace libdbc::impl
@@ -104,28 +182,21 @@ void FileReader::AdvanceLine()
 
     do
     {
-        if (!m_file.good() || m_file.eof())
+        // Read a line
+        if (!std::getline(m_file, m_lineBuffer))
         {
-            // If the file is empty, clear the string and break
-            m_lineBuffer[0] = '\0';
+            // End of file (or read error), clear the string and break
+            m_lineBuffer.clear();
             m_line = m_lineBuffer;
             break;
         }
 
-        // Read a line
-        m_file.getline(m_lineBuffer, std::size(m_lineBuffer));
         m_line = m_lineBuffer;
-
-        // skip empty string
-        if (!m_line.size())
-        {
-            continue;
-        }
 
         // A line is good only if it contains non-whitespace (skip blank lines)
         for (char c : m_line)
         {
-            if (!std::isspace(c))
+            if (!std::isspace(static_cast<unsigned char>(c)))
             {
                 lineGood = true;
                 break;
@@ -134,13 +205,13 @@ void FileReader::AdvanceLine()
     } while (!lineGood);
 
     // Strip any newline content and whitespace off the end
-    while (m_line.size() && std::isspace(m_line[m_line.size() - 1]))
+    while (m_line.size() && std::isspace(static_cast<unsigned char>(m_line[m_line.size() - 1])))
     {
         m_line.remove_suffix(1);
     }
 
     // Trim any leading whitespace
-    while (m_line.size() && std::isspace(m_line[0]))
+    while (m_line.size() && std::isspace(static_cast<unsigned char>(m_line[0])))
     {
         m_line.remove_prefix(1);
     }

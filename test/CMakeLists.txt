@@ -16,4 +16,9 @@ target_sources(libdbc_test
         TestDataDecode.cpp
 )
 
+target_compile_definitions(libdbc_test PRIVATE TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data/")
+
 target_link_libraries(libdbc_test libdbc gmock_main)
+
+include(GoogleTest)
+gtest_discover_tests(libdbc_test)

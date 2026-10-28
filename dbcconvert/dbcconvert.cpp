@@ -58,11 +58,10 @@ public:
 
         uint64_t timestamp = libdbc::util::from_sv<uint64_t>(splitter.Next());
 
-        libdbc::CanFrame frame;
+        libdbc::CanFrame frame{};
         frame.Id = libdbc::util::from_sv<uint32_t>(splitter.Next(), 16);
+        frame.Extended = splitter.Next() == "true";
 
-        // burn std/ext
-        splitter.Next();
         // burn tx/rx
         splitter.Next();
         // burn bus
@@ -72,7 +71,7 @@ public:
 
         for (size_t i = 0; i < 8; i++)
         {
-            frame.Data8[i] = libdbc::util::from_sv<uint8_t>(splitter.Next(), 16);
+            frame.Data[i] = libdbc::util::from_sv<uint8_t>(splitter.Next(), 16);
         }
 
         return std::optional{ std::pair<uint64_t, libdbc::CanFrame>{ timestamp, frame } };

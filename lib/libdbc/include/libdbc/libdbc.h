@@ -1,12 +1,17 @@
 #pragma once
 
 #include <charconv>
-#include <memory>
-#include <vector>
-#include <istream>
-#include <map>
+#include <cstddef>
+#include <cstdint>
 #include <functional>
+#include <istream>
+#include <memory>
+#include <span>
+#include <string>
 #include <string_view>
+#include <type_traits>
+#include <unordered_map>
+#include <vector>
 
 namespace libdbc
 {
@@ -17,6 +22,20 @@ enum class Endian : uint8_t
     Big_Motorola = 1
 };
 
+enum class ValueType : uint8_t
+{
+    Integer = 0,
+    Float32 = 1,    // SIG_VALTYPE_ 1: IEEE single, signal must be 32 bits
+    Float64 = 2,    // SIG_VALTYPE_ 2: IEEE double, signal must be 64 bits
+};
+
+enum class MuxRole : uint8_t
+{
+    None,           // Always present
+    Multiplexor,    // "M": selects which multiplexed signals are present
+    Multiplexed,    // "mN": only present when the multiplexor's value is N
+};
+
 struct Signal final
 {
     const size_t Id;
@@ -24,7 +43,7 @@ struct Signal final
     const std::string Name;
     const Endian Endianness;
     const bool Signed;
-    const uint8_t Bitpos;
+    const uint16_t Bitpos;
     const uint8_t Length;
     const float Factor;
     const float Offset;
@@ -32,7 +51,14 @@ struct Signal final
     float Max;
     const std::string Unit;
 
-    Signal(size_t id, std::string_view name, Endian endian, bool isSigned, uint8_t bitpos, uint8_t length, float factor, float offset, float min, float max, std::string_view unit)
+    const MuxRole Mux;
+    // Value of the multiplexor that selects this signal, if Mux == Multiplexed
+    const uint32_t MuxValue;
+
+    // Set by a SIG_VALTYPE_ line, which comes after the signal's definition
+    ValueType Type = ValueType::Integer;
+
+    Signal(size_t id, std::string_view name, Endian endian, bool isSigned, uint16_t bitpos, uint8_t length, float factor, float offset, float min, float max, std::string_view unit, MuxRole mux, uint32_t muxValue)
         : Id(id)
         , Name(name)
         , Endianness(endian)
@@ -44,19 +70,25 @@ struct Signal final
         , Min(min)
         , Max(max)
         , Unit(unit)
+        , Mux(mux)
+        , MuxValue(muxValue)
     {
     }
 };
 
 struct Message final
 {
+    // CAN ID with the DBC extended flag stripped
     const uint32_t Id;
+    const bool Extended;
+    // Length in bytes, up to 64 for CAN FD
     const uint8_t Dlc;
     const std::string Name;
     std::vector<Signal> Signals;
 
-    Message(uint32_t id, uint8_t dlc, std::string_view name)
+    Message(uint32_t id, bool extended, uint8_t dlc, std::string_view name)
         : Id(id)
+        , Extended(extended)
         , Dlc(dlc)
         , Name(name)
     {
@@ -66,30 +98,34 @@ struct Message final
 struct CanFrame final
 {
     uint32_t Id;
+    bool Extended;
+    // Length in bytes, up to 64 for CAN FD
     uint8_t Dlc;
-
-    union
-    {
-        uint8_t Data8[8];
-        uint64_t Data64;
-    };
+    uint8_t Data[64];
 };
 
 class Dbc final
 {
 public:
+    // Messages are keyed by their ID as written in the DBC: extended IDs have ExtendedIdFlag set
     using message_container = std::unordered_map<uint32_t, Message>;
     using DecoderFunc = std::function<void(const Signal& signal, uint64_t bitsValue, float scaledValue)>;
 
-    static std::unique_ptr<Dbc> Parse(std::istream& file, std::function<void(const Signal&)> = nullptr);
+    static constexpr uint32_t ExtendedIdFlag = 0x80000000;
 
-    Dbc(size_t signalCount, const message_container messages)
+    // Returns nullptr if the stream can't be read or the DBC is malformed.
+    // onSignal is called for each signal in Id order, only if parsing succeeds.
+    static std::unique_ptr<Dbc> Parse(std::istream& file, std::function<void(const Signal&)> onSignal = nullptr);
+
+    Dbc(size_t signalCount, message_container messages)
         : m_signalCount(signalCount)
-        , m_messages(messages)
+        , m_messages(std::move(messages))
     {
     }
 
     void Decode(const CanFrame& frame, DecoderFunc onDecoded) const;
+
+    const Message* FindMessage(uint32_t id, bool extended) const;
 
     size_t SignalCount() const
     {
@@ -101,8 +137,11 @@ public:
         return m_messages;
     }
 
-    static uint32_t GetSignalBits(uint64_t data, Endian endianness, uint8_t bitpos, uint8_t length);
-    static float ToFloat(uint32_t bits, uint8_t length, bool isSigned);
+    // Number of bytes of frame data a signal needs to be present
+    static size_t BytesRequired(Endian endianness, uint16_t bitpos, uint8_t length);
+    // data must contain at least BytesRequired() bytes, length must be 1-64
+    static uint64_t GetSignalBits(std::span<const uint8_t> data, Endian endianness, uint16_t bitpos, uint8_t length);
+    static float ToFloat(uint64_t bits, uint8_t length, bool isSigned);
 
 private:
     const size_t m_signalCount;
@@ -121,7 +160,7 @@ public:
     std::string_view Line() const;
 
 private:
-    char m_lineBuffer[256];
+    std::string m_lineBuffer;
     std::string_view m_line;
 
     std::istream& m_file;
